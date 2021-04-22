@@ -81,10 +81,11 @@ for each_branch in branch_list:
   item_list = [item.get_attribute("id") for item in items]
   print(item_list)
 
-  for idx in range(each_branch[4]+1, 0, -1):
-    print(idx)
-    for each_priority in priority_list:
-      print(each_priority)
+  for each_priority in priority_list:
+    print(each_priority)
+
+    for idx in range(each_branch[4]+1, 0, -1):
+      print(idx)
 
       if f"btn_{each_branch[3]}{idx:02d}_{each_priority[0]}" in item_list and f"btn_{each_branch[3]}{idx:02d}_{each_priority[1]}" in item_list:
         btn_list = [driver.find_element_by_id(f"btn_{each_branch[3]}{idx:02d}_{each_priority[0]}"),
@@ -93,13 +94,12 @@ for each_branch in branch_list:
         continue
 
       print(btn_list)
-      if btn_list:
-        driver.find_element_by_id(f"{each_branch[3]}{idx:02d}").click()
-        wait.until(EC.element_to_be_clickable((By.ID, f"{each_branch[3]}{idx:02d}")))
-        for btn in btn_list: btn.click()
-        driver.find_element_by_id("btnNext").click()
-        success = True
-        break
+      driver.find_element_by_id(f"{each_branch[3]}{idx:02d}").click()
+      wait.until(EC.element_to_be_clickable((By.ID, f"{each_branch[3]}{idx:02d}")))
+      for btn in btn_list: btn.click()
+      driver.find_element_by_id("btnNext").click()
+      success = True
+      break
 
     if success:
       break
