@@ -1,4 +1,5 @@
 import time
+import requests
 from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -6,22 +7,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
-
-# format = "%a, %d %b %Y %H:%M:%S %Z"
-# ############################## timer
-# # check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
-# # check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
-# # delta = datetime.strptime("2021-03-30 16:01:00", "%Y-%m-%d %H:%M:%S") - check_time_object
-# # time.sleep(float(delta.total_seconds()))
-# # date = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
-# # aa = datetime.strptime(date, format) + timedelta(hours=9)
-# # print (aa)
-
-
-# # 신청 페이지 이동
-# wait.until(EC.element_to_be_clickable((By.ID, "applyBtn")))
-# driver.find_element_by_id('applyBtn').click()
 
 # # 지점 선택
 # # TODO: 순서에 따라 지점을 선택해가도록 변경
@@ -66,11 +51,45 @@ class NhissBot:
       os: str, 
       research_center_xpath: str,
       research_number_xpath: str):
-    self.driver = webdriver.Chrome(f'./files/driver/{os}/chromedriver')
+    self.os = os
+    # self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
+    self.driver = None
     # 센터구분 xpath
     self.research_center_xpath = research_center_xpath
     # 연구과제관리번호 선택
     self.research_number_xpath = research_number_xpath
+
+  
+  def wait_until_kst(
+        self, 
+        year, 
+        month, 
+        day, 
+        hour=0, 
+        minute=0, 
+        second=0
+    ):
+    target_datetime = datetime(
+      year=year, 
+      month=month, 
+      day=day, 
+      hour=hour, 
+      minute=minute, 
+      second=second)
+    print(f'[HiraBot] Target Time (KST) {target_datetime}')
+    time_diff = timedelta(hours=9) 
+    format = "%a, %d %b %Y %H:%M:%S %Z"
+    cur_gmt_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+    cur_gmt_time = datetime.strptime(cur_gmt_time, format)
+    print(f'[HiraBot] Current Time (GMT): {cur_gmt_time}')
+    cur_kst_time = cur_gmt_time + time_diff
+    print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
+    delta = target_datetime - cur_kst_time
+    time_to_wait_sec = float(delta.total_seconds())
+    print(f'[HiraBot] Waiting for: {time_to_wait_sec}s')
+    time.sleep(time_to_wait_sec)
+    print('[HiraBot] Time to activate HiraBot!')
+    self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
 
   def setCredential(self, id, pwd, name):
     self.user_id = id
@@ -106,8 +125,9 @@ class NhissBot:
   
 
   def apply(self):
-    # self.wait.until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_APPLY")))
     time.sleep(1)
+    # Switch to default frame from cmsView
+    self.driver.switch_to.frame("cmsView")
     self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
 
   def refresh(self):
@@ -207,7 +227,7 @@ if __name__ == "__main__":
   research_center_xpath= '//*[@id="a"]/table/tbody/tr[6]/td[2]',
   research_number_xpath= '//*[@id="a"]/table/tbody/tr[3]/td[2]'
   )
-
+  nhiss_bot.wait_until_kst(2021, 7, 7, 16, 45, 55)
   nhiss_bot.setCredential(
     id= 'kokoko1230',
     pwd= 'password2@',
@@ -218,4 +238,4 @@ if __name__ == "__main__":
 
   nhiss_bot.selectReservationOptions()
   # nhiss_bot.apply()
-  nhiss_bot.quit()
+  # nhiss_bot.quit()
