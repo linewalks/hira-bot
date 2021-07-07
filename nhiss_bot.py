@@ -5,113 +5,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-format = "%a, %d %b %Y %H:%M:%S %Z"
-############################## timer
-# check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
-# check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
-# delta = datetime.strptime("2021-03-30 16:01:00", "%Y-%m-%d %H:%M:%S") - check_time_object
-# time.sleep(float(delta.total_seconds()))
-# date = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
-# aa = datetime.strptime(date, format) + timedelta(hours=9)
-# print (aa)
-
-# TODO: OS 에 따른 드라이버 path 를 config 파일로 이동
-driver = webdriver.Chrome('./files/driver/linux/chromedriver')
-
-# 로그인 페이지 접속
-wait = WebDriverWait(driver, timeout=1)
-driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
-
-# 로그인
-# TODO: 계정 정보 config 파일로 이동
-user_id = 'kokoko1230'
-user_pwd = 'password2@'
-user_name = '박근우'
-driver.find_element_by_id('j_username').send_keys(user_id)
-driver.find_element_by_id('j_password').send_keys(user_pwd + Keys.RETURN)
-
-# 로그인 후 팝업 닫기
-time.sleep(1)
-main = driver.window_handles 
-for handle in main: 
-  if handle != main[0]: 
-    driver.switch_to.window(handle) 
-    driver.close() 
-driver.switch_to.window(driver.window_handles[0])
-
-# MY서비스 - 분석센터이용 페이지로 이동
-driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
-# 크롬 창 최대화
-# driver.maximize_window()
-
-time.sleep(1)
-driver.switch_to.frame("cmsView")
-# 연구과제관리번호 선택
-# tr[순서 + 1]
-driver.find_element_by_id("WSF_1_insert_APLY_MGMT_NO_label").click()
-driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[3]/td[2]').click()
-# 센터구분
-driver.find_element_by_id("WSF_1_insert_ZN_CEN_CD_label").click()
-
-# driver.find_element_by_xpath('/html/body/div[6]/div/table/tbody/tr[2]/td[2]').click() # 서울
-driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[6]/td[2]').click() # 광주
-# element = driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[2]/td[2]') # 서울
-# driver.execute_script(("arguments[0].click();", element))
-# driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[4]/td[2]').click() # 수원
-
-# 예약일자 선택
-# time.sleep(1)
-driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
-time.sleep(1)
-# Switch to default frame from cmsView
-driver.switch_to.default_content()
-
-# Get target day which is two weeks later than today.
-target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
-print(target_day)
 
 
-driver.execute_script("""
-  var target_day =  arguments[0]
-  var row_count = window[2].WShtAC_1.GetRowCount()
-  var target_index = -1
-  for (var i = 0; i < row_count; i++){
-    var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
-    if (target_day == cur_row_date){
-      target_index = i
-      break;
-    }   
-  }
-  if (target_index != -1){
-    window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
-  }
-  window[2].BTN_SELECT_Click()
-""", target_day)
 
-# Select visitor(s)
-time.sleep(1)
-driver.switch_to.frame("cmsView")
-driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()
-time.sleep(1)
-driver.switch_to.default_content()
-driver.execute_script("""
-
-  var target_user_name =  arguments[0]
-  var row_count = window[2].WShtAC_1.GetRowCount()
-  var target_index = -1
-  for (var i = 0; i < row_count; i++){
-    var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
-    if (target_user_name == cur_user_id){
-      target_index = i
-      break;
-    }   
-  }
-
-  if (target_index != -1){
-    window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
-  }
-  window[2].BTN_SELECT_Click()
-""", user_name)
+# format = "%a, %d %b %Y %H:%M:%S %Z"
+# ############################## timer
+# # check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+# # check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
+# # delta = datetime.strptime("2021-03-30 16:01:00", "%Y-%m-%d %H:%M:%S") - check_time_object
+# # time.sleep(float(delta.total_seconds()))
+# # date = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+# # aa = datetime.strptime(date, format) + timedelta(hours=9)
+# # print (aa)
 
 
 # # 신청 페이지 이동
@@ -154,12 +59,163 @@ driver.execute_script("""
 #   if success:
 #     break
 
-# # 새로고침
-# # driver.refresh()
 
-# # 3초 후 
-# time.sleep(3)
-# print('Test Completed')
+class NhissBot:
+  
+  def __init__(self, 
+      os: str, 
+      research_center_xpath: str,
+      research_number_xpath: str):
+    self.driver = webdriver.Chrome(f'./files/driver/{os}/chromedriver')
+    # 센터구분 xpath
+    self.research_center_xpath = research_center_xpath
+    # 연구과제관리번호 선택
+    self.research_number_xpath = research_number_xpath
 
-# # 드라이버 종료(크롬창 닫힘)
-# # driver.quit()
+  def setCredential(self, id, pwd, name):
+    self.user_id = id
+    self.user_pwd = pwd
+    self.user_name = name
+  
+  def login(self):
+    # 로그인 페이지 접속
+    self.wait = WebDriverWait(self.driver, timeout=1)
+    self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
+    # 로그인
+    # TODO: 계정 정보 config 파일로 이동
+    self.driver.find_element_by_id('j_username').send_keys(self.user_id)
+    self.driver.find_element_by_id('j_password').send_keys(self.user_pwd + Keys.RETURN)
+    time.sleep(1)
+    # 로그인 후 팝업 닫기
+    main = self.driver.window_handles 
+    for handle in main: 
+      if handle != main[0]: 
+        self.driver.switch_to.window(handle) 
+        self.driver.close() 
+    self.driver.switch_to.window(self.driver.window_handles[0])
+  
+
+  def selectReservationOptions(self):
+    self.__goToMyService()
+    time.sleep(1)
+
+    self.__select_research_number()
+    self.__select_research_center()
+    self.__select_reservation_date()
+    self.__select_visitor()
+  
+
+  def apply(self):
+    # self.wait.until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_APPLY")))
+    time.sleep(1)
+    self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
+
+  def refresh(self):
+    self.driver.refresh()
+  
+
+  def quit(self, time_s=5):
+    time.sleep(time_s)
+    self.driver.quit()
+
+
+  def __select_research_number(self):
+    # 연구과제관리번호 선택
+    # tr[순서 + 1]
+    self.driver.find_element_by_id("WSF_1_insert_APLY_MGMT_NO_label").click()
+    self.driver.find_element_by_xpath(self.research_number_xpath).click()
+    
+
+  # MY서비스 - 분석센터이용 페이지로 이동
+  def __goToMyService(self):
+    self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
+    time.sleep(1)
+    self.driver.switch_to.frame("cmsView")
+
+  # 센터구분
+  def __select_research_center(self):
+    self.driver.find_element_by_id("WSF_1_insert_ZN_CEN_CD_label").click()
+
+    # driver.find_element_by_xpath('/html/body/div[6]/div/table/tbody/tr[2]/td[2]').click() # 서울
+    self.driver.find_element_by_xpath(self.research_center_xpath).click() # 광주
+    # element = driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[2]/td[2]') # 서울
+    # driver.execute_script(("arguments[0].click();", element))
+    # driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[4]/td[2]').click() # 수원
+    
+  
+  def __select_reservation_date(self):
+    # 예약일자 선택
+    # time.sleep(1)
+    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
+    time.sleep(1)
+    # Switch to default frame from cmsView
+    self.driver.switch_to.default_content()
+
+    # Get target day which is two weeks later than today.
+    target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+    print(target_day)
+
+
+    self.driver.execute_script("""
+      var target_day =  arguments[0]
+      var row_count = window[2].WShtAC_1.GetRowCount()
+      var target_index = -1
+      for (var i = 0; i < row_count; i++){
+        var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+        if (target_day == cur_row_date){
+          target_index = i
+          break;
+        }   
+      }
+      if (target_index != -1){
+        window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+      }
+      window[2].BTN_SELECT_Click()
+    """, target_day)
+  
+
+  def __select_visitor(self):
+    # Select visitor(s)
+    time.sleep(1)
+    self.driver.switch_to.frame("cmsView")
+    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()
+    time.sleep(1)
+    self.driver.switch_to.default_content()
+    self.driver.execute_script("""
+
+      var target_user_name =  arguments[0]
+      var row_count = window[2].WShtAC_1.GetRowCount()
+      var target_index = -1
+      for (var i = 0; i < row_count; i++){
+        var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
+        if (target_user_name == cur_user_id){
+          target_index = i
+          break;
+        }   
+      }
+
+      if (target_index != -1){
+        window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+      }
+      window[2].BTN_SELECT_Click()
+    """, self.user_name)
+
+
+if __name__ == "__main__":
+  nhiss_bot = NhissBot(
+  os='linux',
+  research_center_xpath= '//*[@id="a"]/table/tbody/tr[6]/td[2]',
+  research_number_xpath= '//*[@id="a"]/table/tbody/tr[3]/td[2]'
+  )
+
+  nhiss_bot.setCredential(
+    id= 'kokoko1230',
+    pwd= 'password2@',
+    name='박근우'
+  )
+
+  nhiss_bot.login()
+
+  nhiss_bot.selectReservationOptions()
+  # nhiss_bot.apply()
+  nhiss_bot.quit()
