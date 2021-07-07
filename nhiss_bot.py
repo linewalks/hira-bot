@@ -1,12 +1,10 @@
 import time
-import requests
 from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
 format = "%a, %d %b %Y %H:%M:%S %Z"
 ############################## timer
 # check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
@@ -18,16 +16,19 @@ format = "%a, %d %b %Y %H:%M:%S %Z"
 # print (aa)
 
 # TODO: OS 에 따른 드라이버 path 를 config 파일로 이동
-driver = webdriver.Chrome('./files/driver/windows/chromedriver')
+driver = webdriver.Chrome('./files/driver/linux/chromedriver')
 
 # 로그인 페이지 접속
 wait = WebDriverWait(driver, timeout=1)
 driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
 
 # 로그인
-# TODO: 계정 정보 config 파일로 이동  
-driver.find_element_by_id('j_username').send_keys('kokoko1230')
-driver.find_element_by_id('j_password').send_keys('password2@' + Keys.RETURN)
+# TODO: 계정 정보 config 파일로 이동
+user_id = 'kokoko1230'
+user_pwd = 'password2@'
+user_name = '박근우'
+driver.find_element_by_id('j_username').send_keys(user_id)
+driver.find_element_by_id('j_password').send_keys(user_pwd + Keys.RETURN)
 
 # 로그인 후 팝업 닫기
 time.sleep(1)
@@ -41,7 +42,7 @@ driver.switch_to.window(driver.window_handles[0])
 # MY서비스 - 분석센터이용 페이지로 이동
 driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
 # 크롬 창 최대화
-driver.maximize_window()
+# driver.maximize_window()
 
 time.sleep(1)
 driver.switch_to.frame("cmsView")
@@ -52,7 +53,8 @@ driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[3]/td[2]').click()
 # 센터구분
 driver.find_element_by_id("WSF_1_insert_ZN_CEN_CD_label").click()
 
-driver.find_element_by_xpath('/html/body/div[6]/div/table/tbody/tr[2]/td[2]').click() # 서울
+# driver.find_element_by_xpath('/html/body/div[6]/div/table/tbody/tr[2]/td[2]').click() # 서울
+driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[6]/td[2]').click() # 광주
 # element = driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[2]/td[2]') # 서울
 # driver.execute_script(("arguments[0].click();", element))
 # driver.find_element_by_xpath('//*[@id="a"]/table/tbody/tr[4]/td[2]').click() # 수원
@@ -60,6 +62,57 @@ driver.find_element_by_xpath('/html/body/div[6]/div/table/tbody/tr[2]/td[2]').cl
 # 예약일자 선택
 # time.sleep(1)
 driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
+time.sleep(1)
+# Switch to default frame from cmsView
+driver.switch_to.default_content()
+
+# Get target day which is two weeks later than today.
+target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+print(target_day)
+
+
+driver.execute_script("""
+  var target_day =  arguments[0]
+  var row_count = window[2].WShtAC_1.GetRowCount()
+  var target_index = -1
+  for (var i = 0; i < row_count; i++){
+    var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+    if (target_day == cur_row_date){
+      target_index = i
+      break;
+    }   
+  }
+  if (target_index != -1){
+    window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+  }
+  window[2].BTN_SELECT_Click()
+""", target_day)
+
+# Select visitor(s)
+time.sleep(1)
+driver.switch_to.frame("cmsView")
+driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()
+time.sleep(1)
+driver.switch_to.default_content()
+driver.execute_script("""
+
+  var target_user_name =  arguments[0]
+  var row_count = window[2].WShtAC_1.GetRowCount()
+  var target_index = -1
+  for (var i = 0; i < row_count; i++){
+    var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
+    if (target_user_name == cur_user_id){
+      target_index = i
+      break;
+    }   
+  }
+
+  if (target_index != -1){
+    window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+  }
+  window[2].BTN_SELECT_Click()
+""", user_name)
+
 
 # # 신청 페이지 이동
 # wait.until(EC.element_to_be_clickable((By.ID, "applyBtn")))
