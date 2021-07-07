@@ -215,7 +215,7 @@ if __name__ == "__main__":
   )
 
   #TODO: Set the date time to be the target time below.
-  nhiss_bot.wait_until_kst(2021, 7, 7, 18, 52, 35)
+  nhiss_bot.wait_until_kst(2021, 7, 8, 10, 0, 0)
 
   #TODO: Enter your credentail below.
   nhiss_bot.setCredential(
