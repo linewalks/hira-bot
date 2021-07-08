@@ -226,13 +226,13 @@ if __name__ == "__main__":
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
 
   #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-  # nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40)
+  nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40)
 
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
   nhiss_bot.selectReservationOptions()
-  
+
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
   # nhiss_bot.apply() # 예약 신청 버튼 클릭.
   # nhiss_bot.quit()  # 브라우저를 종료.
