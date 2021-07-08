@@ -11,24 +11,15 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class NhissBot:
   
-  def __init__(self, 
-      os: str, 
-      research_center_xpath: str,
-      research_number_xpath: str,
-      debug=False):
-    
+  def __init__(self, os: str, debug=False):
     self.debug = debug
     self.os = os
     if self.debug:
       self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
     else:
       self.driver = None
-    # 센터구분 xpath
-    self.research_center_xpath = research_center_xpath
-    # 연구과제관리번호 선택
-    self.research_number_xpath = research_number_xpath
-
   
+
   def wait_until_kst(
         self, 
         year, 
@@ -64,13 +55,24 @@ class NhissBot:
     print('[HiraBot] Time to activate HiraBot!')
     self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
 
+
   def setCredential(self, id, pwd, name):
     self.user_id = id
     self.user_pwd = pwd
     self.user_name = name
+
+
+  def setResearchVisiters(self, visiters: List[str]):
+    self.visiters = visiters
+
+
+  def setResearchCenterXpath(self, research_center_xpath: str):
+    self.research_center_xpath = research_center_xpath
+
   
-  def setResearchers(self, researchers: List[str]):
-    self.researchers = researchers
+  def setResearchNumberXpath(self, research_number_xpath: str):
+    self.research_number_xpath = research_number_xpath
+
 
   def login(self):
     print(f'[HiraBot] Log-in as \
@@ -178,7 +180,7 @@ class NhissBot:
     time.sleep(1)
     self.driver.switch_to.default_content()
 
-    def select_visitor_js(researcher_name):
+    def select_visitor_js(visiter):
       self.driver.execute_script("""
         var target_user_name =  arguments[0]
         var row_count = window[2].WShtAC_1.GetRowCount()
@@ -194,46 +196,43 @@ class NhissBot:
         if (target_index != -1){
           window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
         }
-      """, researcher_name)
+      """, visiter)
     print("[HiraBot] Researchers:")
-    for researcher_name in self.researchers:
-      select_visitor_js(researcher_name)
-      print(f"    {researcher_name}")
+    for visiter in self.visiters:
+      select_visitor_js(visiter)
+      print(f"    {visiter}")
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
 
 
 if __name__ == "__main__":
-  import sys
-  sys.stdout.flush()
-  nhiss_bot = NhissBot(
-  os='macos',
-  #TODO: Put research center xpath below.
-  research_center_xpath= '//*[@id="a"]/table/tbody/tr[6]/td[2]',
-  #TODO: Put research number xpath below.
-  research_number_xpath= '//*[@id="a"]/table/tbody/tr[3]/td[2]',
-  debug=False
+  from files.configs.nhiss_cfg import (
+    OS,
+    RESEARCH_NUMBER_XPATH,
+    RESEARCH_CENTER_XPATH,
+    CREDENTIAL_ID,
+    CREDENTIAL_PWD,
+    CREDENTIAL_NAME,
+    RESEARCH_VISITER_LIST
   )
-
-  #TODO: Set the date time to be the target time below.
-  nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40)
-
-  #TODO: Enter your credentail below.
+  # Nhiss Bot 설정.
+  nhiss_bot = NhissBot(os=OS, debug=True)
+  nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
+  nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
-    id= 'kokoko1230',
-    pwd= 'password2@',
-    name='박근우'
+    id= CREDENTIAL_ID,
+    pwd= CREDENTIAL_PWD,
+    name=CREDENTIAL_NAME
   )
+  nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
 
-  #TODO: Enter researcher name(s) below.
-  researchers = [
-    '성기훈',
-    '문여래',
-    '박근우'
-  ]
+  #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
+  # nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40)
 
-  nhiss_bot.setResearchers(researchers)
+  # NHISS 로그인.
   nhiss_bot.login()
+  # NHISS 예약 신청 작업 실행.
   nhiss_bot.selectReservationOptions()
-  #TODO: Comment out when executed for real reservation.
-  # nhiss_bot.apply()
-  nhiss_bot.quit()
+  
+  #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
+  # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+  # nhiss_bot.quit()  # 브라우저를 종료.
