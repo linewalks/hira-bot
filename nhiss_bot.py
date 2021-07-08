@@ -206,7 +206,7 @@ if __name__ == "__main__":
   import sys
   sys.stdout.flush()
   nhiss_bot = NhissBot(
-  os='linux',
+  os='macos',
   #TODO: Put research center xpath below.
   research_center_xpath= '//*[@id="a"]/table/tbody/tr[6]/td[2]',
   #TODO: Put research number xpath below.
@@ -215,7 +215,7 @@ if __name__ == "__main__":
   )
 
   #TODO: Set the date time to be the target time below.
-  nhiss_bot.wait_until_kst(2021, 7, 8, 10, 0, 0)
+  nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40)
 
   #TODO: Enter your credentail below.
   nhiss_bot.setCredential(
