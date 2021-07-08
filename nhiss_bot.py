@@ -18,7 +18,6 @@ class NhissBot:
       self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
     else:
       self.driver = None
-  
 
   def wait_until_kst(
         self, 
@@ -55,24 +54,19 @@ class NhissBot:
     print('[HiraBot] Time to activate HiraBot!')
     self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
 
-
   def setCredential(self, id, pwd, name):
     self.user_id = id
     self.user_pwd = pwd
     self.user_name = name
 
-
   def setResearchVisiters(self, visiters: List[str]):
     self.visiters = visiters
-
 
   def setResearchCenterXpath(self, research_center_xpath: str):
     self.research_center_xpath = research_center_xpath
 
-  
   def setResearchNumberXpath(self, research_number_xpath: str):
     self.research_number_xpath = research_number_xpath
-
 
   def login(self):
     print(f'[HiraBot] Log-in as \
@@ -93,7 +87,6 @@ class NhissBot:
         self.driver.close() 
     self.driver.switch_to.window(self.driver.window_handles[0])
   
-
   def selectReservationOptions(self):
     print('[HiraBot] Go to My service view.')
     self.__goToMyService()
@@ -107,7 +100,7 @@ class NhissBot:
     print('[HiraBot] Selecting visiter(s)')
     self.__select_visitor()
   
-
+  # 신청
   def apply(self):
     time.sleep(1)
     # Switch to default frame from cmsView
@@ -118,11 +111,9 @@ class NhissBot:
   def refresh(self):
     self.driver.refresh()
   
-
   def quit(self, time_s=5):
     time.sleep(time_s)
     self.driver.quit()
-
 
   # 연구과제관리번호 선택
   def __select_research_number(self):
@@ -131,19 +122,16 @@ class NhissBot:
     self.driver.find_element_by_xpath(self.research_number_xpath).click()
     self.driver.find_element_by_xpath('//*[@id="a"]/table/tbody')
 
-
   # MY서비스 - 분석센터이용 페이지로 이동
   def __goToMyService(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
     time.sleep(1)
     self.driver.switch_to.frame("cmsView")
 
-
   # 센터구분
   def __select_research_center(self):
     self.driver.find_element_by_id("WSF_1_insert_ZN_CEN_CD_label").click()
     self.driver.find_element_by_xpath(self.research_center_xpath).click() # 광주
-
 
   # 예약일자 선택
   def __select_reservation_date(self):
@@ -171,7 +159,6 @@ class NhissBot:
       window[2].BTN_SELECT_Click()
     """, target_day)
   
-
   def __select_visitor(self):
     # Select visitor(s)
     time.sleep(1)
