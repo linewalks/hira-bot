@@ -28,7 +28,7 @@ pip3 install -r requirements.txt
     - `CREDENTIAL_PWD`: NHISS 접속 비밀번호.
     - `CREDENTIAL_NAME`: NHISS 접속 계정 이름.
     - `RESEARCH_VISITER_LIST`: 방문자 이름 리스트.
-- `/nhiss_bot.py`에서 229번째줄 코드(아래 참고)에서 Nhiss bot 실행 시간을 설정
+- `/nhiss_bot.py`에서 `if __name__ == "__main__":`(아래 참고) 아래에 있는 코드에서 Nhiss bot 실행 시간을 설정
 ```python
 nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40) #year #month #day #hour #minute #second
 ```
