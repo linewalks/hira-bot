@@ -202,7 +202,7 @@ if __name__ == "__main__":
     RESEARCH_VISITER_LIST
   )
   # Nhiss Bot 설정.
-  nhiss_bot = NhissBot(os=OS, debug=True)
+  nhiss_bot = NhissBot(os=OS, debug=False)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
   nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
@@ -221,5 +221,5 @@ if __name__ == "__main__":
   nhiss_bot.selectReservationOptions()
 
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
-  # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+  nhiss_bot.apply() # 예약 신청 버튼 클릭.
   # nhiss_bot.quit()  # 브라우저를 종료.
