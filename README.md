@@ -46,6 +46,8 @@ nhiss_bot.wait_until_kst(2021, 7, 8, 11, 27, 40) #year #month #day #hour #minute
 ```shell
 sh bin/run.sh
 ```
+> window를 사용하는 경우에는 아래의 명령어를 사용합니다.
+> ```python3 nhiss_bot.py```
 
 
 ### 로그 보기
