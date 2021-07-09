@@ -20,7 +20,7 @@ pip3 install -r requirements.txt
 ### Configuration 설정
 - `/files/configs/nhiss_cfg.py`로 접근한다.
 - 해당 `nhiss_cfg.py`에서 아래의 설정값들을 입력해준다.
-    - `OS`: Nhiss Bot을 실행시키는 컴퓨터의 운영체제 (linux, macos, window(아직 테스트 진행되지 않음) 중 택 1)
+    - `OS`: Nhiss Bot을 실행시키는 컴퓨터의 운영체제 (linux, macos, window중 택 1)
         - 사용하고자 하는 OS, Chrome Webdriver Version, 그리고 실제 사용되는 Chrome Version가 일치해야합니다. 이 부분 문제시 알려주세요.
     - `RESEARCH_NUMBER_XPATH`: [아래 Xpath 가져오기](https://yona.linewalks.com/TaskForce/hira-bot/issue/5#yb-header-xpath-%EA%B0%80%EC%A0%B8%EC%98%A4%EA%B8%B0)를 참고하여 원하는 연구과제관리번호 Xpath를 입력.
     - `RESEARCH_CENTER_XPATH`: [아래 Xpath 가져오기](https://yona.linewalks.com/TaskForce/hira-bot/issue/5#yb-header-xpath-%EA%B0%80%EC%A0%B8%EC%98%A4%EA%B8%B0)를 참고하여 원하는 분석센터 Xpath를 입력.
