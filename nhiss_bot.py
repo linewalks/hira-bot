@@ -213,7 +213,8 @@ if __name__ == "__main__":
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
 
   #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-  nhiss_bot.wait_until_kst(2021, 7, 9, 23, 59, 55)
+  today = datetime.now()
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 23, 59, 55)
 
   # NHISS 로그인.
   nhiss_bot.login()
