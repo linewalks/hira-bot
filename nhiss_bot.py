@@ -208,15 +208,18 @@ if __name__ == "__main__":
     name=CREDENTIAL_NAME
   )
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
-
+  
+  today = datetime.now()
+  #TODO: Set date and time to login.
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 16, 0)
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
   nhiss_bot.selectReservationOptions()
 
   #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-  today = datetime.now()
-  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 14, 15, 40)
+  
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 18, 0)
   nhiss_bot.selectReservationDate()
   print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
