@@ -33,7 +33,7 @@ class NhissBot:
     print(f'[HiraBot] Target  Time (KST): {target_datetime}')
     time_diff = timedelta(hours=9) 
     format = "%a, %d %b %Y %H:%M:%S %Z"
-    cur_gmt_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+    cur_gmt_time = requests.get('https://nhiss.nhis.or.kr/bd/ay/bdaya001iv.do').headers['Date']
     cur_gmt_time = datetime.strptime(cur_gmt_time, format)
     print(f'[HiraBot] Current Time (GMT): {cur_gmt_time}')
     cur_kst_time = cur_gmt_time + time_diff
