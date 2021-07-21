@@ -3,21 +3,16 @@ from typing import List
 import requests
 from datetime import timedelta, datetime
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+from helper import count_down
 
 class NhissBot:
   
-  def __init__(self, os: str, debug=False):
-    self.debug = debug
+  def __init__(self, os: str):
     self.os = os
-    if self.debug:
-      self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
-    else:
-      self.driver = None
+    self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
+
 
   def wait_until_kst(
         self, 
@@ -38,21 +33,19 @@ class NhissBot:
     print(f'[HiraBot] Target  Time (KST): {target_datetime}')
     time_diff = timedelta(hours=9) 
     format = "%a, %d %b %Y %H:%M:%S %Z"
-    cur_gmt_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+    cur_gmt_time = requests.get('https://nhiss.nhis.or.kr/bd/ay/bdaya001iv.do').headers['Date']
     cur_gmt_time = datetime.strptime(cur_gmt_time, format)
     print(f'[HiraBot] Current Time (GMT): {cur_gmt_time}')
     cur_kst_time = cur_gmt_time + time_diff
     print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
     delta = target_datetime - cur_kst_time
-    time_to_wait_sec = float(delta.total_seconds())
-    print(f'[HiraBot] Waiting for: {time_to_wait_sec}s')
+    time_to_wait_sec = int(delta.total_seconds())
     try:
-      time.sleep(time_to_wait_sec)
+      count_down(time_to_wait_sec)
     except ValueError:
       print('[HiraBot][TargetTimeError] Target Time must be in the future')
       exit(1)
     print('[HiraBot] Time to activate HiraBot!')
-    self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
 
   def setCredential(self, id, pwd, name):
     self.user_id = id
@@ -95,11 +88,15 @@ class NhissBot:
     self.__select_research_number()
     print('[HiraBot] Selecting research center')
     self.__select_research_center()
-    print('[HiraBot] Selecting reservation date')
-    self.__select_reservation_date()
     print('[HiraBot] Selecting visiter(s)')
     self.__select_visitor()
   
+
+  def selectReservationDate(self):
+    print('[HiraBot] Selecting reservation date')
+    self.__select_reservation_date()
+  
+
   # 신청
   def apply(self):
     time.sleep(1)
@@ -135,6 +132,7 @@ class NhissBot:
 
   # 예약일자 선택
   def __select_reservation_date(self):
+    self.driver.switch_to.frame("cmsView")
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
     time.sleep(1)
     # Switch to default frame from cmsView
@@ -161,8 +159,7 @@ class NhissBot:
   
   def __select_visitor(self):
     # Select visitor(s)
-    time.sleep(1)
-    self.driver.switch_to.frame("cmsView")
+
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()
     time.sleep(1)
     self.driver.switch_to.default_content()
@@ -202,7 +199,7 @@ if __name__ == "__main__":
     RESEARCH_VISITER_LIST
   )
   # Nhiss Bot 설정.
-  nhiss_bot = NhissBot(os=OS, debug=False)
+  nhiss_bot = NhissBot(os=OS)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
   nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
@@ -212,15 +209,16 @@ if __name__ == "__main__":
   )
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
 
-  #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-  today = datetime.now()
-  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 23, 59, 55)
-
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
   nhiss_bot.selectReservationOptions()
 
+  #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
+  today = datetime.now()
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 14, 15, 40)
+  nhiss_bot.selectReservationDate()
+  print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
-  nhiss_bot.apply() # 예약 신청 버튼 클릭.
+  # nhiss_bot.apply() # 예약 신청 버튼 클릭.
   # nhiss_bot.quit()  # 브라우저를 종료.
