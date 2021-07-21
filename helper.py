@@ -1,16 +1,10 @@
 import time
 import sys
+import datetime
 
-
-def parse_seconds(seconds):
-  hours = int(seconds / 3600)
-  mins = int(seconds / 60 - hours * 60)
-  seconds = int(seconds % 60)
-  return hours, mins, seconds
 
 def get_seconds_pretty_string(seconds):
-  hours, mins, seconds = parse_seconds(seconds)
-  return f"{hours:02d}:{mins:02d}:{seconds:02d}"
+  return str(datetime.timedelta(seconds=seconds))
 
 
 def count_down(time_to_wait_seconds):
