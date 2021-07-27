@@ -39,9 +39,11 @@ class NhissBot:
     cur_kst_time = cur_gmt_time + time_diff
     print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
     delta = target_datetime - cur_kst_time
-    time_to_wait_sec = int(delta.total_seconds())
+    # time_to_wait_sec = int(delta.total_seconds())
+    time_to_wait_sec = float(delta.total_seconds())
     try:
-      count_down(time_to_wait_sec)
+      # count_down(time_to_wait_sec)
+      time.sleep(time_to_wait_sec)
     except ValueError:
       print('[HiraBot][TargetTimeError] Target Time must be in the future')
       exit(1)
