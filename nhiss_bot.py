@@ -223,5 +223,5 @@ if __name__ == "__main__":
   nhiss_bot.selectReservationDate()
   print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
-  # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+  nhiss_bot.apply() # 예약 신청 버튼 클릭.
   # nhiss_bot.quit()  # 브라우저를 종료.
