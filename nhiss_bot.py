@@ -250,7 +250,7 @@ def run_until_success():
     elapsed = end - start
     print(f"[HiraBot] Reservation Failed! elapsed: {elapsed}")
     #TODO: use time.sleep instead
-    count_down(int(abs(60 - elapsed)))
+    # count_down(int(abs( - elapsed)))
     run_until_success()
 
 def run_on_time():
@@ -286,6 +286,18 @@ def run_on_time():
   end = time.time()
   elapsed = end - start
   print(f"[HiraBot] Elapsed: {elapsed}")
+
+
+def handle_exception():
+  from selenium.common.exceptions import WebDriverException
+  try:
+    run_until_success()
+  except WebDriverException:
+    print("############################### WAIT #############################")
+    count_down(60)
+    handle_exception()
+
+
 if __name__ == "__main__":
   # run_on_time()
-  run_until_success()
+  handle_exception()
