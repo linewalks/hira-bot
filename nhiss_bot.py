@@ -192,7 +192,7 @@ class NhissBot:
 
     # Get target day which is two weeks later than today.
     # target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
-    target_day = "2021-08-40"
+    target_day = "2021-09-21"
     target_index = get_target_index_js(self.driver, target_day)
     print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
@@ -215,7 +215,42 @@ class NhissBot:
       print(f"    {visiter}")
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
 
-def main():
+def run_until_success():
+  start = time.time()
+  # Nhiss Bot 설정.
+  nhiss_bot = NhissBot(os=OS)
+  nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
+  nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
+  nhiss_bot.setCredential(
+    id= CREDENTIAL_ID,
+    pwd= CREDENTIAL_PWD,
+    name=CREDENTIAL_NAME
+  )
+  nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
+  
+  today = datetime.now()
+  #TODO: Set date and time to login.
+  # NHISS 로그인.
+  nhiss_bot.login()
+  # NHISS 예약 신청 작업 실행.
+  nhiss_bot.selectReservationOptions()  
+  reservation_result = nhiss_bot.selectReservationDate()
+
+  if reservation_result:
+    # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+    # nhiss_bot.quit()  # 브라우저를 종료.
+    end = time.time()
+    elapsed = end - start
+    print(f"[HiraBot] Reservation Success! elapsed: {elapsed}")
+  else:
+    nhiss_bot.quit()  # 브라우저를 종료.    
+    end = time.time()
+    elapsed = end - start
+    print(f"[HiraBot] Reservation Failed! elapsed: {elapsed}")
+    count_down(int(abs(20 - elapsed)))
+    run_until_success()
+
+def run_on_time():
   start = time.time()
   # Nhiss Bot 설정.
   nhiss_bot = NhissBot(os=OS)
@@ -243,19 +278,11 @@ def main():
   print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
 
-  if reservation_result:
     # nhiss_bot.apply() # 예약 신청 버튼 클릭.
     # nhiss_bot.quit()  # 브라우저를 종료.
-    end = time.time()
-    elapsed = end - start
-    print(f"Success! elasped: {elapsed}")
-  else:
-    nhiss_bot.quit()  # 브라우저를 종료.    
-    end = time.time()
-    elapsed = end - start
-    print(f"Failed! elasped: {elapsed}")
-    count_down(int(abs(20 - elapsed)))
-    main()
-
+  end = time.time()
+  elapsed = end - start
+  print(f"Elasped: {elapsed}")
 if __name__ == "__main__":
-  main()
+  # run_on_time()
+  run_until_success()
