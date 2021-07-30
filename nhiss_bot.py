@@ -191,7 +191,9 @@ class NhissBot:
 
 
     # Get target day which is two weeks later than today.
+    #TODO: comment out line below. 
     # target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+    #TODO: delete hard-coded target day below.
     target_day = "2021-09-21"
     target_index = get_target_index_js(self.driver, target_day)
     print(f"[HiraBot] target_index for {target_day}: {target_index}")
@@ -247,7 +249,8 @@ def run_until_success():
     end = time.time()
     elapsed = end - start
     print(f"[HiraBot] Reservation Failed! elapsed: {elapsed}")
-    count_down(int(abs(20 - elapsed)))
+    #TODO: use time.sleep instead
+    count_down(int(abs(60 - elapsed)))
     run_until_success()
 
 def run_on_time():
@@ -282,7 +285,7 @@ def run_on_time():
     # nhiss_bot.quit()  # 브라우저를 종료.
   end = time.time()
   elapsed = end - start
-  print(f"Elasped: {elapsed}")
+  print(f"[HiraBot] Elapsed: {elapsed}")
 if __name__ == "__main__":
   # run_on_time()
   run_until_success()
