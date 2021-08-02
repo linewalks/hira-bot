@@ -5,6 +5,7 @@ from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 from helper import count_down
 from files.configs.nhiss_cfg import (
   OS,
@@ -62,7 +63,10 @@ class NhissBot:
   
   def __init__(self, os: str):
     self.os = os
-    self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
+
+    op = webdriver.ChromeOptions()
+    op.add_argument('headless')
+    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
   def wait_until_kst(
@@ -244,6 +248,7 @@ def run_until_success():
     end = time.time()
     elapsed = end - start
     print(f"[HiraBot] Reservation Success! elapsed: {elapsed}")
+    return True
   else:
     nhiss_bot.quit()  # 브라우저를 종료.    
     end = time.time()
@@ -251,7 +256,8 @@ def run_until_success():
     print(f"[HiraBot] Reservation Failed! elapsed: {elapsed}")
     #TODO: use time.sleep instead
     # count_down(int(abs( - elapsed)))
-    run_until_success()
+    # run_until_success()
+    return False
 
 def run_on_time():
   start = time.time()
@@ -289,13 +295,15 @@ def run_on_time():
 
 
 def handle_exception():
-  from selenium.common.exceptions import WebDriverException
-  try:
-    run_until_success()
-  except WebDriverException:
-    print("############################### WAIT #############################")
-    count_down(60)
-    handle_exception()
+  while True:
+    try:
+      result = run_until_success()
+      if result:
+        break
+    except WebDriverException:
+      print("############################### WAIT #############################")
+      # count_down(60)
+      # handle_exception()
 
 
 if __name__ == "__main__":
