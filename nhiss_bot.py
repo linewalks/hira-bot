@@ -295,7 +295,8 @@ def run_on_time():
   end = time.time()
   elapsed = end - start
   print(f"[HiraBot] Elapsed: {elapsed}")
-
+  msg = f"[HiraBot] 예약 성공하였습니다!"
+  send_message(msg)
 
 def handle_exception():
   while True:
