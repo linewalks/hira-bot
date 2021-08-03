@@ -117,8 +117,8 @@ class NhissBot:
     self.research_number_xpath = research_number_xpath
 
   def login(self):
-    print(f'[HiraBot] Log-in as \
-    \n    Id:{self.user_id}\n    Name:{self.user_name}')
+    # print(f'[HiraBot] Log-in as \
+    # \n    Id:{self.user_id}\n    Name:{self.user_name}')
     # 로그인 페이지 접속
     self.wait = WebDriverWait(self.driver, timeout=1)
     self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
@@ -136,19 +136,19 @@ class NhissBot:
     self.driver.switch_to.window(self.driver.window_handles[0])
   
   def selectReservationOptions(self):
-    print('[HiraBot] Go to My service view.')
+    # print('[HiraBot] Go to My service view.')
     self.__goToMyService()
     time.sleep(1)
-    print('[HiraBot] Selecting research number')
+    # print('[HiraBot] Selecting research number')
     self.__select_research_number()
-    print('[HiraBot] Selecting research center')
+    # print('[HiraBot] Selecting research center')
     self.__select_research_center()
-    print('[HiraBot] Selecting visiter(s)')
+    # print('[HiraBot] Selecting visiter(s)')
     self.__select_visitor()
   
 
   def selectReservationDate(self):
-    print('[HiraBot] Selecting reservation date')
+    # print('[HiraBot] Selecting reservation date')
     return self.__select_reservation_date()
   
 
@@ -200,7 +200,7 @@ class NhissBot:
     #TODO: delete hard-coded target day below.
     target_day = "2021-09-21"
     target_index = get_target_index_js(self.driver, target_day)
-    print(f"[HiraBot] target_index for {target_day}: {target_index}")
+    # print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
       select_target_day_with_index_js(self.driver, target_index)
       return True
@@ -215,10 +215,10 @@ class NhissBot:
     time.sleep(1)
     self.driver.switch_to.default_content()
 
-    print("[HiraBot] Researchers:")
+    # print("[HiraBot] Researchers:")
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
-      print(f"    {visiter}")
+      # print(f"    {visiter}")
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
 
 def run_until_success():
@@ -241,19 +241,21 @@ def run_until_success():
   # NHISS 예약 신청 작업 실행.
   nhiss_bot.selectReservationOptions()  
   reservation_result = nhiss_bot.selectReservationDate()
-
+  current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   if reservation_result:
     # nhiss_bot.apply() # 예약 신청 버튼 클릭.
     # nhiss_bot.quit()  # 브라우저를 종료.
     end = time.time()
     elapsed = end - start
-    print(f"[HiraBot] Reservation Success! elapsed: {elapsed}")
+    print("------------------------- 성공 !! -------------------------")
+    print(f"[HiraBot] Reservation Success! Time elapsed: {int(elapsed)} Current Time: {current_time}")
     return True
   else:
     nhiss_bot.quit()  # 브라우저를 종료.    
     end = time.time()
     elapsed = end - start
-    print(f"[HiraBot] Reservation Failed! elapsed: {elapsed}")
+    print("------------------------- 실패 !! -------------------------")
+    print(f"[HiraBot] Reservation Failed! Time elapsed: {int(elapsed)} Current Time: {current_time}")
     #TODO: use time.sleep instead
     # count_down(int(abs( - elapsed)))
     # run_until_success()
@@ -301,9 +303,8 @@ def handle_exception():
       if result:
         break
     except WebDriverException:
-      print("############################### WAIT #############################")
+      print("------------------------- WebDriverException 발생 -------------------------")
       # count_down(60)
-      # handle_exception()
 
 
 if __name__ == "__main__":
