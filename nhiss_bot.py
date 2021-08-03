@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 from helper import count_down
+from notification import send_message
 from files.configs.nhiss_cfg import (
   OS,
   RESEARCH_NUMBER_XPATH,
@@ -249,6 +250,8 @@ def run_until_success():
     elapsed = end - start
     print("------------------------- 성공 !! -------------------------")
     print(f"[HiraBot] Reservation Success! Time elapsed: {int(elapsed)} Current Time: {current_time}")
+    msg = f"[HiraBot] 예약 성공하였습니다!"
+    send_message(msg)
     return True
   else:
     nhiss_bot.quit()  # 브라우저를 종료.    
@@ -256,9 +259,7 @@ def run_until_success():
     elapsed = end - start
     print("------------------------- 실패 !! -------------------------")
     print(f"[HiraBot] Reservation Failed! Time elapsed: {int(elapsed)} Current Time: {current_time}")
-    #TODO: use time.sleep instead
     # count_down(int(abs( - elapsed)))
-    # run_until_success()
     return False
 
 def run_on_time():
@@ -309,4 +310,5 @@ def handle_exception():
 
 if __name__ == "__main__":
   # run_on_time()
+  send_message("[HiraBot] 공단 예약 신청을 시작합니다.")
   handle_exception()
