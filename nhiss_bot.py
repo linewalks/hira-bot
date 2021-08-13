@@ -308,10 +308,10 @@ def handle_exception():
         break
     except WebDriverException:
       print("------------------------- WebDriverException 발생 -------------------------")
-      # count_down(60)
+      count_down(60)
 
 
 if __name__ == "__main__":
-  # run_on_time()
+  run_on_time()
   send_message("[HiraBot] 공단 예약 신청을 시작합니다.")
-  handle_exception()
+  # handle_exception()
