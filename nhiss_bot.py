@@ -202,7 +202,15 @@ class NhissBot:
     target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
     #TODO: delete hard-coded target day below.
     # target_day = ""
-    target_index = get_target_index_js(self.driver, target_day)
+
+    start_time = time.time()
+    while time.time() - start_time < 3:
+      try:
+        target_index = get_target_index_js(self.driver, target_day)
+        if target_index != -1:
+          break
+      except:
+        continue
     # print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
       select_target_day_with_index_js(self.driver, target_index)
