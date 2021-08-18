@@ -199,9 +199,9 @@ class NhissBot:
 
     # Get target day which is two weeks later than today.
     #TODO: comment out line below. 
-    # target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+    target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
     #TODO: delete hard-coded target day below.
-    target_day = "2021-09-21"
+    # target_day = ""
     target_index = get_target_index_js(self.driver, target_day)
     # print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
