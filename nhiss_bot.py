@@ -157,7 +157,7 @@ class NhissBot:
 
   # 신청
   def apply(self):
-    time.sleep(1)
+    # time.sleep(1)
     # Switch to default frame from cmsView
     print('[HiraBot] Submitting...')
     self.driver.switch_to.frame("cmsView")
@@ -192,7 +192,7 @@ class NhissBot:
   def __select_reservation_date(self):
     self.driver.switch_to.frame("cmsView")
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
-    time.sleep(1)
+    # time.sleep(1)
     # Switch to default frame from cmsView
     self.driver.switch_to.default_content()
 
