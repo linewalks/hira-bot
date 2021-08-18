@@ -66,7 +66,7 @@ class NhissBot:
     self.os = os
 
     op = webdriver.ChromeOptions()
-    op.add_argument('headless')
+    # op.add_argument('headless')
     self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
