@@ -5,13 +5,69 @@ from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 from helper import count_down
+from notification import send_message
+from files.configs.nhiss_cfg import (
+  OS,
+  RESEARCH_NUMBER_XPATH,
+  RESEARCH_CENTER_XPATH,
+  CREDENTIAL_ID,
+  CREDENTIAL_PWD,
+  CREDENTIAL_NAME,
+  RESEARCH_VISITER_LIST
+)
+
+def get_target_index_js(driver, target_day):
+  return driver.execute_script("""
+    var target_day =  arguments[0]
+    var row_count = window[2].WShtAC_1.GetRowCount()
+    var target_index = -1
+    for (var i = 0; i < row_count; i++){
+      var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+      if (target_day == cur_row_date){
+        target_index = i
+        break;
+      }   
+    }
+    return target_index
+  """, target_day)
+
+
+def select_target_day_with_index_js(driver, target_index):
+  driver.execute_script("""
+    var target_index =  arguments[0]
+    window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+    window[2].BTN_SELECT_Click()
+  """, target_index)
+
+
+def select_visitor_js(driver, visiter):
+  driver.execute_script("""
+    var target_user_name =  arguments[0]
+    var row_count = window[2].WShtAC_1.GetRowCount()
+    var target_index = -1
+    for (var i = 0; i < row_count; i++){
+      var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
+      if (target_user_name == cur_user_id){
+        target_index = i
+        break;
+      }   
+    }
+
+    if (target_index != -1){
+      window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+    }
+  """, visiter)
 
 class NhissBot:
   
   def __init__(self, os: str):
     self.os = os
-    self.driver = webdriver.Chrome(f'./files/driver/{self.os}/chromedriver')
+
+    op = webdriver.ChromeOptions()
+    op.add_argument('headless')
+    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
   def wait_until_kst(
@@ -62,8 +118,8 @@ class NhissBot:
     self.research_number_xpath = research_number_xpath
 
   def login(self):
-    print(f'[HiraBot] Log-in as \
-    \n    Id:{self.user_id}\n    Name:{self.user_name}')
+    # print(f'[HiraBot] Log-in as \
+    # \n    Id:{self.user_id}\n    Name:{self.user_name}')
     # 로그인 페이지 접속
     self.wait = WebDriverWait(self.driver, timeout=1)
     self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
@@ -81,20 +137,20 @@ class NhissBot:
     self.driver.switch_to.window(self.driver.window_handles[0])
   
   def selectReservationOptions(self):
-    print('[HiraBot] Go to My service view.')
+    # print('[HiraBot] Go to My service view.')
     self.__goToMyService()
     time.sleep(1)
-    print('[HiraBot] Selecting research number')
+    # print('[HiraBot] Selecting research number')
     self.__select_research_number()
-    print('[HiraBot] Selecting research center')
+    # print('[HiraBot] Selecting research center')
     self.__select_research_center()
-    print('[HiraBot] Selecting visiter(s)')
+    # print('[HiraBot] Selecting visiter(s)')
     self.__select_visitor()
   
 
   def selectReservationDate(self):
-    print('[HiraBot] Selecting reservation date')
-    self.__select_reservation_date()
+    # print('[HiraBot] Selecting reservation date')
+    return self.__select_reservation_date()
   
 
   # 신청
@@ -138,25 +194,21 @@ class NhissBot:
     # Switch to default frame from cmsView
     self.driver.switch_to.default_content()
 
+
     # Get target day which is two weeks later than today.
-    target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
-    self.driver.execute_script("""
-      var target_day =  arguments[0]
-      var row_count = window[2].WShtAC_1.GetRowCount()
-      var target_index = -1
-      for (var i = 0; i < row_count; i++){
-        var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
-        if (target_day == cur_row_date){
-          target_index = i
-          break;
-        }   
-      }
-      if (target_index != -1){
-        window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
-      }
-      window[2].BTN_SELECT_Click()
-    """, target_day)
-  
+    #TODO: comment out line below. 
+    # target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+    #TODO: delete hard-coded target day below.
+    target_day = "2021-09-21"
+    target_index = get_target_index_js(self.driver, target_day)
+    # print(f"[HiraBot] target_index for {target_day}: {target_index}")
+    if target_index != -1:
+      select_target_day_with_index_js(self.driver, target_index)
+      return True
+    else:
+      return False
+
+
   def __select_visitor(self):
     # Select visitor(s)
 
@@ -164,40 +216,14 @@ class NhissBot:
     time.sleep(1)
     self.driver.switch_to.default_content()
 
-    def select_visitor_js(visiter):
-      self.driver.execute_script("""
-        var target_user_name =  arguments[0]
-        var row_count = window[2].WShtAC_1.GetRowCount()
-        var target_index = -1
-        for (var i = 0; i < row_count; i++){
-          var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
-          if (target_user_name == cur_user_id){
-            target_index = i
-            break;
-          }   
-        }
-
-        if (target_index != -1){
-          window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
-        }
-      """, visiter)
-    print("[HiraBot] Researchers:")
+    # print("[HiraBot] Researchers:")
     for visiter in self.visiters:
-      select_visitor_js(visiter)
-      print(f"    {visiter}")
+      select_visitor_js(self.driver, visiter)
+      # print(f"    {visiter}")
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
 
-
-if __name__ == "__main__":
-  from files.configs.nhiss_cfg import (
-    OS,
-    RESEARCH_NUMBER_XPATH,
-    RESEARCH_CENTER_XPATH,
-    CREDENTIAL_ID,
-    CREDENTIAL_PWD,
-    CREDENTIAL_NAME,
-    RESEARCH_VISITER_LIST
-  )
+def run_until_success():
+  start = time.time()
   # Nhiss Bot 설정.
   nhiss_bot = NhissBot(os=OS)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
@@ -211,7 +237,47 @@ if __name__ == "__main__":
   
   today = datetime.now()
   #TODO: Set date and time to login.
-  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 16, 0)
+  # NHISS 로그인.
+  nhiss_bot.login()
+  # NHISS 예약 신청 작업 실행.
+  nhiss_bot.selectReservationOptions()  
+  reservation_result = nhiss_bot.selectReservationDate()
+  current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  if reservation_result:
+    # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+    # nhiss_bot.quit()  # 브라우저를 종료.
+    end = time.time()
+    elapsed = end - start
+    print("------------------------- 성공 !! -------------------------")
+    print(f"[HiraBot] Reservation Success! Time elapsed: {int(elapsed)} Current Time: {current_time}")
+    msg = f"[HiraBot] 예약 성공하였습니다!"
+    send_message(msg)
+    return True
+  else:
+    nhiss_bot.quit()  # 브라우저를 종료.    
+    end = time.time()
+    elapsed = end - start
+    print("------------------------- 실패 !! -------------------------")
+    print(f"[HiraBot] Reservation Failed! Time elapsed: {int(elapsed)} Current Time: {current_time}")
+    # count_down(int(abs( - elapsed)))
+    return False
+
+def run_on_time():
+  start = time.time()
+  # Nhiss Bot 설정.
+  nhiss_bot = NhissBot(os=OS)
+  nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
+  nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
+  nhiss_bot.setCredential(
+    id= CREDENTIAL_ID,
+    pwd= CREDENTIAL_PWD,
+    name=CREDENTIAL_NAME
+  )
+  nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
+  
+  today = datetime.now()
+  #TODO: Set date and time to login.
+  # nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 16, 0)
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
@@ -219,9 +285,31 @@ if __name__ == "__main__":
 
   #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
   
-  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 18, 0)
-  nhiss_bot.selectReservationDate()
+  # nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 18, 0)
+  reservation_result = nhiss_bot.selectReservationDate()
   print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
-  # nhiss_bot.apply() # 예약 신청 버튼 클릭.
-  # nhiss_bot.quit()  # 브라우저를 종료.
+
+    # nhiss_bot.apply() # 예약 신청 버튼 클릭.
+    # nhiss_bot.quit()  # 브라우저를 종료.
+  end = time.time()
+  elapsed = end - start
+  print(f"[HiraBot] Elapsed: {elapsed}")
+  msg = f"[HiraBot] 예약 성공하였습니다!"
+  send_message(msg)
+
+def handle_exception():
+  while True:
+    try:
+      result = run_until_success()
+      if result:
+        break
+    except WebDriverException:
+      print("------------------------- WebDriverException 발생 -------------------------")
+      # count_down(60)
+
+
+if __name__ == "__main__":
+  # run_on_time()
+  send_message("[HiraBot] 공단 예약 신청을 시작합니다.")
+  handle_exception()
