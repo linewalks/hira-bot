@@ -27,7 +27,7 @@ def init_nhiss_bot():
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
   return nhiss_bot
 
-def run_until_success():
+def run_until_success(debug=True):
   start = time.time()
   # Nhiss Bot 설정.
   nhiss_bot = init_nhiss_bot()
@@ -41,8 +41,9 @@ def run_until_success():
   reservation_result = nhiss_bot.selectReservationDate()
   current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   if reservation_result:
-    # nhiss_bot.apply() # 예약 신청 버튼 클릭.
-    # nhiss_bot.quit()  # 브라우저를 종료.
+    if not debug:
+      nhiss_bot.apply() # 예약 신청 버튼 클릭.
+      nhiss_bot.quit()  # 브라우저를 종료.
     end = time.time()
     elapsed = end - start
     print("------------------------------------------------------------------ 성공 -------------------------")
@@ -101,5 +102,6 @@ def handle_exception():
 
 if __name__ == "__main__":
   send_message("공단 예약 신청을 시작합니다.")
+  #TODO: 파이썬 실행 커맨드라인 옵션 추가
   # run_on_time()
   handle_exception()

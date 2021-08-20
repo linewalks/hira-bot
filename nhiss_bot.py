@@ -31,7 +31,7 @@ class NhissBot:
     self.os = os
 
     op = webdriver.ChromeOptions()
-    # op.add_argument('headless')
+    op.add_argument('headless')
     self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
@@ -60,10 +60,8 @@ class NhissBot:
     cur_kst_time = cur_gmt_time + time_diff
     print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
     delta = target_datetime - cur_kst_time
-    # time_to_wait_sec = int(delta.total_seconds())
     time_to_wait_sec = float(delta.total_seconds())
     try:
-      # count_down(time_to_wait_sec)
       time.sleep(time_to_wait_sec)
     except ValueError:
       print('[HiraBot][TargetTimeError] Target Time must be in the future')
@@ -101,7 +99,7 @@ class NhissBot:
     self.driver.switch_to.window(self.driver.window_handles[0])
   
   def selectReservationOptions(self):
-    self.__goToMyService()
+    self.__go_to_my_service()
     self.__select_research_number()
     self.__select_research_center()
     self.__select_visitor()
@@ -129,7 +127,7 @@ class NhissBot:
 
 
   # MY서비스 - 분석센터이용 페이지로 이동
-  def __goToMyService(self):
+  def __go_to_my_service(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
 
