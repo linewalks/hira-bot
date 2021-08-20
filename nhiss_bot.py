@@ -66,7 +66,7 @@ class NhissBot:
     self.os = os
 
     op = webdriver.ChromeOptions()
-    op.add_argument('headless')
+    # op.add_argument('headless')
     self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
@@ -95,9 +95,11 @@ class NhissBot:
     cur_kst_time = cur_gmt_time + time_diff
     print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
     delta = target_datetime - cur_kst_time
-    time_to_wait_sec = int(delta.total_seconds())
+    # time_to_wait_sec = int(delta.total_seconds())
+    time_to_wait_sec = float(delta.total_seconds())
     try:
-      count_down(time_to_wait_sec)
+      # count_down(time_to_wait_sec)
+      time.sleep(time_to_wait_sec)
     except ValueError:
       print('[HiraBot][TargetTimeError] Target Time must be in the future')
       exit(1)
@@ -155,7 +157,7 @@ class NhissBot:
 
   # 신청
   def apply(self):
-    time.sleep(1)
+    # time.sleep(1)
     # Switch to default frame from cmsView
     print('[HiraBot] Submitting...')
     self.driver.switch_to.frame("cmsView")
@@ -190,17 +192,25 @@ class NhissBot:
   def __select_reservation_date(self):
     self.driver.switch_to.frame("cmsView")
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_DT").click()
-    time.sleep(1)
+    # time.sleep(1)
     # Switch to default frame from cmsView
     self.driver.switch_to.default_content()
 
 
     # Get target day which is two weeks later than today.
     #TODO: comment out line below. 
-    # target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+    target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
     #TODO: delete hard-coded target day below.
-    target_day = "2021-09-21"
-    target_index = get_target_index_js(self.driver, target_day)
+    # target_day = ""
+
+    start_time = time.time()
+    while time.time() - start_time < 3:
+      try:
+        target_index = get_target_index_js(self.driver, target_day)
+        if target_index != -1:
+          break
+      except:
+        continue
     # print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
       select_target_day_with_index_js(self.driver, target_index)
@@ -277,7 +287,7 @@ def run_on_time():
   
   today = datetime.now()
   #TODO: Set date and time to login.
-  # nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 16, 0)
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
@@ -285,17 +295,17 @@ def run_on_time():
 
   #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
   
-  # nhiss_bot.wait_until_kst(today.year, today.month, today.day, 18, 18, 0)
+  nhiss_bot.wait_until_kst(today.year, today.month, today.day + 1, 0, 0, 0)
   reservation_result = nhiss_bot.selectReservationDate()
   print("예약 신청 버튼 클릭!")
   #TODO: 실제 예약 진행시 아래의 코드를 Comment-out하여 실행해주세요.
 
-    # nhiss_bot.apply() # 예약 신청 버튼 클릭.
-    # nhiss_bot.quit()  # 브라우저를 종료.
+  nhiss_bot.apply() # 예약 신청 버튼 클릭.
+  # nhiss_bot.quit()  # 브라우저를 종료.
   end = time.time()
   elapsed = end - start
   print(f"[HiraBot] Elapsed: {elapsed}")
-  msg = f"[HiraBot] 예약 성공하였습니다!"
+  msg = f"[HiraBot] run_on_time 예약 성공하였습니다!"
   send_message(msg)
 
 def handle_exception():
@@ -306,10 +316,10 @@ def handle_exception():
         break
     except WebDriverException:
       print("------------------------- WebDriverException 발생 -------------------------")
-      # count_down(60)
+      count_down(60)
 
 
 if __name__ == "__main__":
-  # run_on_time()
-  send_message("[HiraBot] 공단 예약 신청을 시작합니다.")
-  handle_exception()
+  run_on_time()
+  # send_message("[HiraBot] 공단 예약 신청을 시작합니다.")
+  # handle_exception()
