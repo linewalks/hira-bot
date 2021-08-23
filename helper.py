@@ -42,4 +42,3 @@ def send_message(msg):
       headers=message_headers,
       body=dumps(bot_message),
   )
-

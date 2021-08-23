@@ -27,11 +27,12 @@ from files.configs.nhiss_cfg import (
 
 class NhissBot:
   
-  def __init__(self, os: str):
+  def __init__(self, os: str, headless: bool=False):
     self.os = os
 
     op = webdriver.ChromeOptions()
-    op.add_argument('headless')
+    if headless:
+      op.add_argument('headless')
     self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 

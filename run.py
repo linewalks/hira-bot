@@ -15,8 +15,8 @@ from files.configs.nhiss_cfg import (
 from nhiss_bot import NhissBot
 
 
-def init_nhiss_bot():
-  nhiss_bot = NhissBot(os=OS)
+def init_nhiss_bot(headless=True):
+  nhiss_bot = NhissBot(os=OS, headless=headless)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
   nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
@@ -27,13 +27,11 @@ def init_nhiss_bot():
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
   return nhiss_bot
 
-def run_until_success(debug=True):
+def run_until_success(bot: NhissBot, debug: bool = True):
   start = time.time()
   # Nhiss Bot 설정.
-  nhiss_bot = init_nhiss_bot()
+  nhiss_bot = bot
   
-  today = datetime.now()
-  #TODO: Set date and time to login.
   # NHISS 로그인.
   nhiss_bot.login()
   # NHISS 예약 신청 작업 실행.
@@ -50,16 +48,17 @@ def run_until_success(debug=True):
     print(f"[HiraBot][DEBUG] Time elapsed: {int(elapsed)}s Current Time: {current_time}")
     return True
   else:
+    print("------------------------------------------------------------------ 실패 -------------------------")
     nhiss_bot.quit()  # 브라우저를 종료.    
     end = time.time()
     elapsed = end - start
     print(f"[HiraBot][DEBUG] Time elapsed: {int(elapsed)}s Current Time: {current_time}")
     return False
 
-def run_on_time(debug=True):
+def run_on_time(bot: NhissBot, debug: bool = True):
   start = time.time()
   # Nhiss Bot 설정.
-  nhiss_bot = init_nhiss_bot()
+  nhiss_bot = bot
   
   today = datetime.now()
 
@@ -89,12 +88,15 @@ def run_on_time(debug=True):
     send_message("run_on_time 예약 실패하였습니다!")
   time.sleep(10)
 
-def handle_exception():
+def handle_exception(bot):
   while True:
     try:
-      result = run_until_success()
+      print("try!!!!!!!!!!!!!")
+      result = run_until_success(bot)
       if result:
         break
+      else:
+        count_down(20)
     except WebDriverException as e:
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!! WebDriverException 발생 !!!!!!!!!!!!!!!!!!!!!!!!!!!")
       count_down(5)
@@ -115,15 +117,22 @@ if __name__ == "__main__":
 
   parser.add_argument(
       "--run_until_success",
-      type=bool,
-      required=False,
-      default=False,
+      action="store_true",
+      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작)'
+  )
+
+  parser.add_argument(
+      "--headless",
+      action="store_true",
       help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작)'
   )
 
   args = parser.parse_args()
-  print(args.run_until_success)
-  # send_message("공단 예약 신청을 시작합니다.")
-  # #TODO: 파이썬 실행 커맨드라인 옵션 추가
-  # # run_on_time()
-  # handle_exception()
+  send_message("공단 예약 신청을 시작합니다.")
+  bot = init_nhiss_bot()
+  if args.run_until_success:
+    print("run_until_success 모드로 실행합니다.")
+    handle_exception(bot)
+  else:
+    print("run_on_time 모드로 실행합니다.")
+    run_on_time(bot)
