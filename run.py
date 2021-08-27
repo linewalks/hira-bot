@@ -116,7 +116,7 @@ if __name__ == "__main__":
   parser.add_argument(
       "-run_until_success",
       type= str,
-      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작)'
+      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작) target day를 설정해주세요'
   )
 
   parser.add_argument(
