@@ -137,4 +137,4 @@ if __name__ == "__main__":
     run_until_success(target_day, args.headless)
   else:
     send_message("공단 예약 신청을 run_on_time 모드로 시작합니다.")
-    run_on_time()
+    run_on_time(debug=False)
