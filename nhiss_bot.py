@@ -148,8 +148,6 @@ class NhissBot:
       # Get target day which is two weeks later than today.
       #TODO: comment out line below. 
       target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
-      #TODO: delete hard-coded target day below.
-      target_day = "2021-08-40"
 
     
     target_index = get_target_index_js(self.driver, target_day)
