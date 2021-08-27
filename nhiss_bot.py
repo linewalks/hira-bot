@@ -153,8 +153,6 @@ class NhissBot:
 
     
     target_index = get_target_index_js(self.driver, target_day)
-
-    print(f"[HiraBot] target_index for {target_day}: {target_index}")
     if target_index != -1:
       select_target_day_with_index_js(self.driver, target_index)
       return True
