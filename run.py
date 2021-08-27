@@ -2,7 +2,7 @@ import time
 from typing import List
 from datetime import timedelta, datetime
 from selenium.common.exceptions import WebDriverException
-from helper import count_down, send_message
+from helper import count_down, send_message, validate
 from files.configs.nhiss_cfg import (
   OS,
   RESEARCH_NUMBER_XPATH,
@@ -15,8 +15,8 @@ from files.configs.nhiss_cfg import (
 from nhiss_bot import NhissBot
 
 
-def init_nhiss_bot():
-  nhiss_bot = NhissBot(os=OS)
+def init_nhiss_bot(headless: bool=False):
+  nhiss_bot = NhissBot(os=OS, headless=headless)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
   nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
@@ -27,58 +27,57 @@ def init_nhiss_bot():
   nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
   return nhiss_bot
 
-def run_until_success(debug=True):
+
+def run(target_day, headless: bool= False, debug: bool = True):
   start = time.time()
   # Nhiss Bot 설정.
-  nhiss_bot = init_nhiss_bot()
+  bot = init_nhiss_bot(headless)
   
-  today = datetime.now()
-  #TODO: Set date and time to login.
   # NHISS 로그인.
-  nhiss_bot.login()
+  bot.login()
   # NHISS 예약 신청 작업 실행.
-  nhiss_bot.selectReservationOptions()  
-  reservation_result = nhiss_bot.selectReservationDate()
+  bot.selectReservationOptions()  
+  reservation_result = bot.selectReservationDate(target_day)
   current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  result = None
   if reservation_result:
     if not debug:
-      nhiss_bot.apply() # 예약 신청 버튼 클릭.
-      nhiss_bot.quit()  # 브라우저를 종료.
-    end = time.time()
-    elapsed = end - start
+      bot.apply() # 예약 신청 버튼 클릭.
+      bot.quit()  # 브라우저를 종료.
     print("------------------------------------------------------------------ 성공 -------------------------")
-    print(f"[HiraBot][DEBUG] Time elapsed: {int(elapsed)}s Current Time: {current_time}")
-    return True
+    result = True
   else:
-    nhiss_bot.quit()  # 브라우저를 종료.    
-    end = time.time()
-    elapsed = end - start
-    print(f"[HiraBot][DEBUG] Time elapsed: {int(elapsed)}s Current Time: {current_time}")
-    return False
+    bot.quit()  # 브라우저를 종료.    
+    result = False
+  
+  elapsed = time.time() - start
+  print(f"[HiraBot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
+  return result
 
-def run_on_time(debug=True):
+
+def run_on_time(headless: bool = False, debug: bool = True):
   start = time.time()
   # Nhiss Bot 설정.
-  nhiss_bot = init_nhiss_bot()
+  bot = init_nhiss_bot(headless)
   
   today = datetime.now()
 
   if not debug:
     #TODO: Set date and time to login.
-    nhiss_bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
+    bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
 
-  nhiss_bot.login()
-  nhiss_bot.selectReservationOptions()
+  bot.login()
+  bot.selectReservationOptions()
 
   if not debug:
     #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-    nhiss_bot.wait_until_kst(today.year, today.month, today.day + 1, 0, 0, 0)
+    bot.wait_until_kst(today.year, today.month, today.day + 1, 0, 0, 0)
   
-  booking_success = nhiss_bot.selectReservationDate()
+  booking_success = bot.selectReservationDate()
 
   if not debug:
-    nhiss_bot.apply() # 예약 신청 버튼 클릭.
-    nhiss_bot.quit()  # 브라우저를 종료.
+    bot.apply() # 예약 신청 버튼 클릭.
+    bot.quit()  # 브라우저를 종료.
   
   end = time.time()
   elapsed = end - start
@@ -89,11 +88,12 @@ def run_on_time(debug=True):
     send_message("run_on_time 예약 실패하였습니다!")
   time.sleep(10)
 
-def handle_exception():
+def run_until_success(target_day, headless: bool = False):
   while True:
     try:
-      result = run_until_success()
+      result = run(target_day, headless)
       if result:
+        send_message(f"run_until_success 예약 성공하였습니다! target_day: {target_day}")
         break
     except WebDriverException as e:
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!! WebDriverException 발생 !!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -101,7 +101,40 @@ def handle_exception():
 
 
 if __name__ == "__main__":
-  send_message("공단 예약 신청을 시작합니다.")
-  #TODO: 파이썬 실행 커맨드라인 옵션 추가
-  # run_on_time()
-  handle_exception()
+  from argparse import ArgumentParser, RawTextHelpFormatter
+  parser = ArgumentParser(
+      description=
+"""
+공단 신청을 자동으로 실행하는 봇 프로그램 입니다.
+  신청 실행 모드:
+    1. run_on_time: 세팅한 날짜/시간에 2주 뒤 날짜를 예약 시도하는 모드. 단일 실행
+    2. run_until_success: 세팅한 날짜/시간에 예약이 성공할 때까지 계속해서 시도하는 모드.
+
+""",
+      formatter_class=RawTextHelpFormatter)
+
+  parser.add_argument(
+      "-run_until_success",
+      type= str,
+      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작) target day를 설정해주세요'
+  )
+
+  parser.add_argument(
+      "--headless",
+      action="store_true",
+      help='브라우져 없이 봇을 실행하는 옵션'
+  )
+
+  args = parser.parse_args()
+  target_day = args.run_until_success
+  if target_day:
+    try:
+      validate(target_day)
+    except ValueError as e:
+      send_message(f"{e}")
+      exit(1)
+    send_message(f"공단 예약 신청을 run_until_success 모드로 시작합니다. target day: {target_day}")
+    run_until_success(target_day, args.headless)
+  else:
+    send_message("공단 예약 신청을 run_on_time 모드로 시작합니다.")
+    run_on_time()

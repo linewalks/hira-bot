@@ -28,7 +28,8 @@ def send_message(msg):
   if not NOTIFICATION_FLAG:
     print(f"[HiraBot][DEBUG] {msg}")
     return  
-  url = 'https://chat.googleapis.com/v1/spaces/AAAARTaMFug/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=t-AsqJo52GoF0jiqVehUA1H5yojIRd0DbD8LSjdkuSg%3D'
+  url = "https://chat.googleapis.com/v1/spaces/AAAAXo5z2Fw/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=sV0WBSBw2VB4izmQMkcN8ZAnmU8w_mZ6-JxTCEEiMMM%3D" # webhook-test
+  # url = 'https://chat.googleapis.com/v1/spaces/AAAARTaMFug/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=t-AsqJo52GoF0jiqVehUA1H5yojIRd0DbD8LSjdkuSg%3D' # 공단신청봇
   bot_message = {
       'text' : msg}
 
@@ -43,3 +44,9 @@ def send_message(msg):
       body=dumps(bot_message),
   )
 
+
+def validate(date_text):
+  try:
+      datetime.datetime.strptime(date_text, '%Y-%m-%d')
+  except ValueError:
+      raise ValueError(f"Incorrect data format, should be YYYY-MM-DD. Given date_test: {date_text}")
