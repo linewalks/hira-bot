@@ -91,7 +91,7 @@ def run_on_time(headless: bool = False, debug: bool = True):
 def run_until_success(target_day, headless: bool = False):
   while True:
     try:
-      result = run(target_day, headless)
+      result = run(target_day, headless, debug=False)
       if result:
         send_message(f"run_until_success 예약 성공하였습니다! target_day: {target_day}")
         break
