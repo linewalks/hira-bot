@@ -11,6 +11,8 @@ from utils.helper import count_down
 from hira.config import (
   branch_list,
   priority_list,
+  OS,
+  TARGET_DATE,
   LOGIN_ID,
   LOGIN_PASSWORD
 )
@@ -21,18 +23,20 @@ class HiraBot():
 
 
   def init_driver(self):
-    driver = webdriver.Chrome('./files/driver/macos/chromedriver_93')
+    driver = webdriver.Chrome(f"./files/driver/{OS}/chromedriver")
     return driver
 
 
   def get_time_delta(self):
     check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
-    debug_print(check_time)
+    # debug_print(check_time)
     check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
     check_time_object_later = datetime.strptime(check_time, format) + timedelta(hours=9, seconds=1)
-    debug_print(check_time_object)
+    
+
+    # debug_print(check_time_object)
     delta = datetime.strptime(str(check_time_object_later), "%Y-%m-%d %H:%M:%S") - check_time_object
-    debug_print(delta)
+    # debug_print(delta)
     return delta
 
 
@@ -72,9 +76,11 @@ class HiraBot():
     return items
 
 
-  def run(self):
+  def run_on_time(self):
     delta = self.get_time_delta()
+
     count_down(int(delta.total_seconds()))
+    # time.sleep(int(delta.total_seconds()))
 
 
     # TODO: OS 에 따른 드라이버 path 를 config 파일로 이동
@@ -102,16 +108,16 @@ class HiraBot():
     for each_branch in branch_list:
       # 센터명 버튼 클릭
       self.click_center(driver, wait, each_branch)
-      # driver.implicitly_wait(2)
+      driver.implicitly_wait(2)
       # 센터 이름이 나올때 까지 대기
       wait.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="bdc_title"]'), each_branch[2]))
-      items = get_items(driver)
+      items = self.get_items(driver)
 
       if not items:
-        debug_print(f"No item found for {each_branch[2]}")
+        # debug_print(f"No item found for {each_branch[2]}")
         continue
-      else:
-        debug_print(f"{len(items)} item(s) found for {each_branch[2]}")
+      # else:
+        # debug_print(f"{len(items)} item(s) found for {each_branch[2]}")
 
       item_list = [item.get_attribute("id") for item in items]
       debug_print(item_list)
@@ -147,5 +153,79 @@ class HiraBot():
     # time.sleep(3)
 
     # 드라이버 종료(크롬창 닫힘)
-    # driver.quit()
+    driver.quit()
+    return success
+
+  def run_until_success(self):
+    # TODO: OS 에 따른 드라이버 path 를 config 파일로 이동
+    driver = self.init_driver()
+
+    # 로그인 페이지 접속
+    wait = WebDriverWait(driver, timeout=10)
+    self.go_login_page(driver)
+
+    # 로그인
+    self.login(driver, wait)
+
+    # 로그인 후 팝업 닫기
+    time.sleep(1.5)
+    self.close_popups(driver)
+
+    # 신청 페이지 이동
+    self.go_apply_page(driver, wait)
+
+    # 지점 선택
+    # TODO: 순서에 따라 지점을 선택해가도록 변경
+    success = False
+    btn_list = []
+
+    for each_branch in branch_list:
+      # 센터명 버튼 클릭
+      self.click_center(driver, wait, each_branch)
+      # driver.implicitly_wait(2)
+      # 센터 이름이 나올때 까지 대기
+      wait.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="bdc_title"]'), each_branch[2]))
+      items = self.get_items(driver)
+
+      if not items:
+        # debug_print(f"No item found for {each_branch[2]}")
+        continue
+      # else:
+        # debug_print(f"{len(items)} item(s) found for {each_branch[2]}")
+
+      item_list = [item.get_attribute("id") for item in items]
+      debug_print(item_list)
+
+      for each_priority in priority_list:
+        debug_print(f"each_priority: {each_priority}")
+        for idx in range(each_branch[4]+1, 0, -1):
+          debug_print(idx)
+          if f"btn_{each_branch[3]}{idx:02d}_{each_priority[0]}" in item_list and f"btn_{each_branch[3]}{idx:02d}_{each_priority[1]}" in item_list:
+            btn_list = [driver.find_element_by_id(f"btn_{each_branch[3]}{idx:02d}_{each_priority[0]}"),
+                        driver.find_element_by_id(f"btn_{each_branch[3]}{idx:02d}_{each_priority[1]}")]
+          else:
+            continue
+          debug_print(btn_list)
+          driver.find_element_by_id(f"{each_branch[3]}{idx:02d}").click()
+          wait.until(EC.element_to_be_clickable((By.ID, f"{each_branch[3]}{idx:02d}")))
+          for btn in btn_list: btn.click()
+          driver.find_element_by_id("btnNext").click()
+          success = True
+          break
+        if success:
+          break
+      if success:
+        break
+
+    # 크롬 창 최대화
+    driver.maximize_window()
+
+    # 새로고침
+    # driver.refresh()
+
+    # 3초 후
+    # time.sleep(3)
+
+    # 드라이버 종료(크롬창 닫힘)
+    driver.quit()
     return success
