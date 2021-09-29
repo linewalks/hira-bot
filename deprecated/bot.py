@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from helper import debug_print
 
 branch_list = [
   (3, '01', '서울', 'hira01', 13),
@@ -25,13 +26,19 @@ priority_list = [
 format = "%a, %d %b %Y %H:%M:%S %Z"
 
 check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
+debug_print(check_time)
 check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
-delta = datetime.strptime("2021-03-30 16:01:00", "%Y-%m-%d %H:%M:%S") - check_time_object
+check_time_object_later = datetime.strptime(check_time, format) + timedelta(hours=9, seconds=10)
+debug_print(check_time_object)
+delta = datetime.strptime(str(check_time_object_later), "%Y-%m-%d %H:%M:%S") - check_time_object
+debug_print(delta)
+
+
 # time.sleep(float(delta.total_seconds()))
+count_down(float(delta.total_seconds()))
 # date = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
 # aa = datetime.strptime(date, format) + timedelta(hours=9)
 # print (aa)
-
 # TODO: OS 에 따른 드라이버 path 를 config 파일로 이동
 driver = webdriver.Chrome('./files/driver/macos/chromedriver')
 
