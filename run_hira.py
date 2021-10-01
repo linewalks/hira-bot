@@ -42,15 +42,15 @@ if __name__ == "__main__":
 """
 심평원 센터별 신청을 자동으로 실행하는 봇 프로그램 입니다.
   신청 실행 모드:
-    1. run_on_time: 
-    2. run_until_success: 세팅한 날짜/시간에 예약이 성공할 때까지 계속해서 시도하는 모드.
+    1. run_on_time(default mode): 설장한 시간까지 기다린 후에 신청 시도를 1회 실행합니다. 
+    2. run_until_success: 예약이 성공할 때까지 즉시 계속해서 시도하는 모드.
 
 """,
   formatter_class=RawTextHelpFormatter)
   parser.add_argument(
       "-run_until_success",
       action="store_true",
-      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작) target day를 설정해주세요'
+      help='예약이 성공할 때까지 계속해서 신청 하는 옵션 (사용하지 않으면 run_on_time 모드로 동작)'
   )
   args = parser.parse_args()  
 
