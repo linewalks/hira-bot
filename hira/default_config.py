@@ -21,8 +21,8 @@ priority_list = [
   ('20210504', '20210505')
 ]
 
-OS = "macos"
-TARGET_DATE = "2021-09-29 19:01:00"
+OS = "" # macos, linux, windows
+TARGET_DATE = "" # Example Data Format: 2021-12-29 19:01:00
 ### 로그인 정보
-LOGIN_ID = "ljung123"
-LOGIN_PASSWORD = "password1!"
+LOGIN_ID = ""
+LOGIN_PASSWORD = ""
