@@ -56,6 +56,7 @@ if __name__ == "__main__":
 
   validate_priority_list_dataformat()
 
+
   if args.run_until_success:
     run_until_success()
   else:
