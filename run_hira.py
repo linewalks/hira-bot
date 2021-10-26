@@ -14,6 +14,8 @@ def run_on_time():
     elapsed = time.time() - start
     current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     debug_print(f"[예약{'성공' if success else '실패'}] 현재시간: {current_time} 경과시간: {float(elapsed):.2f}초")
+    if success:
+      time.sleep(60 * 60)
   except TimeoutException as e:
     debug_print("TimeoutException 발생!")
 
@@ -21,16 +23,16 @@ def run_on_time():
 def run_until_success():
   debug_print("run_until_success() 실행")
   hira_bot = HiraBot()
-  # success = hira_bot.run()
-  # debug_print(f"성공 여부: ${success}")
   while True:
     start = time.time() 
     try:
-      success = hira_bot.run_until_success()
+      success = hira_bot.run()
       elapsed = time.time() - start
       current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
       debug_print(f"[예약{'성공' if success else '실패'}] 현재시간: {current_time} 경과시간: {float(elapsed):.2f}초")
-      if success: break
+      if success: 
+        time.sleep(60 * 60)
+        break
     except TimeoutException as e:
       debug_print("TimeoutException 발생!")
 
