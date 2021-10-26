@@ -30,12 +30,12 @@ class HiraBot():
   def get_time_delta(self):
     check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
     
-    # debug_print(check_time)
+    debug_print(check_time)
     check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
-    # debug_print(check_time_object)
+    debug_print(check_time_object)
     debug_print(f"봇 실행 예약 시간: {TARGET_DATE}")
     delta = datetime.strptime(TARGET_DATE, "%Y-%m-%d %H:%M:%S") - check_time_object
-    # debug_print(delta)
+    debug_print(delta)
     return delta
 
 

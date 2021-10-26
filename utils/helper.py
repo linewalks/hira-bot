@@ -2,7 +2,9 @@ import datetime
 import time
 import sys
 from httplib2 import Http
+ 
 from json import dumps
+from hira.helper import debug_print
 from nhiss.configs.nhiss_cfg import (
     NOTIFICATION_FLAG
 )
@@ -14,14 +16,15 @@ def get_seconds_pretty_string(seconds):
 def count_down(time_to_wait_seconds):
   if time_to_wait_seconds <= 0:
     raise ValueError("cannot wait for negative seconds.")
+  
+  start = time.time()
   print(f"[HiraBot]    Waiting for {get_seconds_pretty_string(time_to_wait_seconds)}")
-  for remaining in range(time_to_wait_seconds, 0, -1):
-      dots = "." * (5 - remaining % 5)
-      sys.stdout.write("\r")
-      sys.stdout.write(f"[HiraBot]    {get_seconds_pretty_string(remaining)} remaining{dots}")
-      sys.stdout.flush()
-      time.sleep(1)
+  time.sleep(time_to_wait_seconds)
+  elapsed = time.time() - start
+  current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  debug_print(f"현재시간: {current_time} 경과시간: {float(elapsed):.2f}초")
   print("\n")
+
 
 
 def send_message(msg):
