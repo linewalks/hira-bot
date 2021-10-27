@@ -23,7 +23,7 @@ class HiraBot():
 
 
   def init_driver(self):
-    driver = webdriver.Chrome(f"./files/driver/{OS}/chromedriver_94")
+    driver = webdriver.Chrome(f"./files/driver/{OS}/chromedriver")
     return driver
 
 
