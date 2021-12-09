@@ -43,13 +43,15 @@ def run(target_day, headless: bool= False, debug: bool = True):
   if reservation_result:
     if not debug:
       bot.apply() # 예약 신청 버튼 클릭.
-      bot.quit()  # 브라우저를 종료.
     print("------------------------------------------------------------------ 성공 -------------------------")
     result = True
   else:
     bot.quit()  # 브라우저를 종료.    
     result = False
-  
+
+  time.sleep(1)
+  bot.quit()
+
   elapsed = time.time() - start
   print(f"[HiraBot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
   return result
@@ -77,7 +79,6 @@ def run_on_time(headless: bool = False, debug: bool = True):
 
   if not debug:
     bot.apply() # 예약 신청 버튼 클릭.
-    bot.quit()  # 브라우저를 종료.
   
   end = time.time()
   elapsed = end - start
@@ -87,6 +88,8 @@ def run_on_time(headless: bool = False, debug: bool = True):
   else:
     send_message("run_on_time 예약 실패하였습니다!")
   time.sleep(10)
+  bot.quit()
+
 
 def run_until_success(target_day, headless: bool = False):
   while True:
