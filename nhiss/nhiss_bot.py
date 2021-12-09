@@ -130,6 +130,7 @@ class NhissBot:
   # MY서비스 - 분석센터이용 페이지로 이동
   def __go_to_my_service(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
+    time.sleep(1)
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
 
   # 센터구분
@@ -141,6 +142,7 @@ class NhissBot:
   def __select_reservation_date(self, target_day = None):
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
+    time.sleep(1)
     self.driver.switch_to.default_content()
 
 
@@ -160,6 +162,7 @@ class NhissBot:
 
   def __select_visitor(self):
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()  
+    time.sleep(1)
     self.driver.switch_to.default_content()
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
