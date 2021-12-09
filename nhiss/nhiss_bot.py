@@ -33,7 +33,7 @@ class NhissBot:
     op = webdriver.ChromeOptions()
     if headless:
       op.add_argument('headless')
-    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver_93', options=op)
+    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
 
 
   def wait_until_kst(
