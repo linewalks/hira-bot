@@ -63,6 +63,7 @@ def run_on_time(headless: bool = False, debug: bool = True):
   bot = init_nhiss_bot(headless)
   
   today = datetime.now()
+  next_day = today + timedelta(days = 1)
 
   if not debug:
     #TODO: Set date and time to login.
@@ -73,9 +74,9 @@ def run_on_time(headless: bool = False, debug: bool = True):
 
   if not debug:
     #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-    bot.wait_until_kst(today.year, today.month, today.day + 1, 0, 0, 0)
+    bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
   
-  booking_success = bot.selectReservationDate()
+  booking_success = bot.selectReservationDate(next_day)
 
   if not debug:
     bot.apply() # 예약 신청 버튼 클릭.
