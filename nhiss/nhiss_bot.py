@@ -24,6 +24,19 @@ from nhiss.configs.nhiss_cfg import (
   RESEARCH_VISITER_LIST
 )
 
+RESEARCH_CENTER_XPATH_MAP = {
+  '/html/body/div[6]/div/table/tbody/tr[1]/td[2]': '원주 본부',
+  '/html/body/div[6]/div/table/tbody/tr[2]/td[2]': '명동',
+  '/html/body/div[6]/div/table/tbody/tr[3]/td[2]': '명동(리서치)',
+  '/html/body/div[6]/div/table/tbody/tr[4]/td[2]': '경인',
+  '/html/body/div[6]/div/table/tbody/tr[5]/td[2]': '대전',
+  '/html/body/div[6]/div/table/tbody/tr[6]/td[2]': '광주',
+  '/html/body/div[6]/div/table/tbody/tr[7]/td[2]': '대구',
+  '/html/body/div[6]/div/table/tbody/tr[8]/td[2]': '부산',
+  '/html/body/div[6]/div/table/tbody/tr[9]/td[2]': '전주',
+  '/html/body/div[6]/div/table/tbody/tr[10]/td[2]': '청주',
+  '/html/body/div[6]/div/table/tbody/tr[11]/td[2]': '일산병원',
+}
 
 class NhissBot:
   
