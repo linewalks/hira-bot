@@ -85,9 +85,9 @@ def run_on_time(headless: bool = False, debug: bool = True):
   elapsed = end - start
   print(f"[HiraBot] Elapsed: {elapsed}")
   if booking_success:
-    send_message("run_on_time 예약 성공하였습니다!")
+    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! day: {next_day}")
   else:
-    send_message("run_on_time 예약 실패하였습니다!")
+    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! day: {next_day}")
   time.sleep(10)
   bot.quit()
 
@@ -97,7 +97,7 @@ def run_until_success(target_day, headless: bool = False):
     try:
       result = run(target_day, headless, debug=False)
       if result:
-        send_message(f"run_until_success 예약 성공하였습니다! target_day: {target_day}")
+        send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_until_success 예약 성공하였습니다! target day: {target_day}")
         break
     except WebDriverException as e:
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!! WebDriverException 발생 !!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -137,8 +137,8 @@ if __name__ == "__main__":
     except ValueError as e:
       send_message(f"{e}")
       exit(1)
-    send_message(f"공단 예약 신청을 run_until_success 모드로 시작합니다. target day: {target_day}")
+    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
     run_until_success(target_day, args.headless)
   else:
-    send_message("공단 예약 신청을 run_on_time 모드로 시작합니다.")
     run_on_time(debug=False)
+    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_on_time 모드로 시작합니다. target day: after 2weeks")
