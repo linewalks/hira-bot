@@ -140,6 +140,6 @@ if __name__ == "__main__":
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
     run_until_success(target_day, args.headless)
   else:
-    target_day = (datetime.now() + timedelta(days = 14)).strftime("%Y-%m-%d")
+    target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day}")
     run_on_time(target_day, args.headless, debug=False)
