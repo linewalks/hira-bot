@@ -53,7 +53,7 @@ def run(target_day, headless: bool= False, debug: bool = True):
   bot.quit()
 
   elapsed = time.time() - start
-  print(f"[HiraBot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
+  print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
   return result
 
 
@@ -83,7 +83,7 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
   
   end = time.time()
   elapsed = end - start
-  print(f"[HiraBot] Elapsed: {elapsed}")
+  print(f"[Bot]] Elapsed: {elapsed}")
   if booking_success:
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
   else:
