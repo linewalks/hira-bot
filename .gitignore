@@ -2,4 +2,5 @@ __pycache__
 nohup.out
 files/driver/windows/chromedriver.exe
 files/configs/nhiss_cfg.py
-files/configs/nhiss_cfg_geunu.py
+hira/config.py
+nhiss/configs/nhiss_cfg.py
