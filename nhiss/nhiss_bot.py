@@ -1,3 +1,5 @@
+import chromedriver_autoinstaller
+import os
 import time
 import requests
 from typing import List
@@ -40,13 +42,21 @@ RESEARCH_CENTER_XPATH_MAP = {
 
 class NhissBot:
   
-  def __init__(self, os: str, headless: bool=False):
-    self.os = os
+  def __init__(self, operating_system: str, headless: bool=False):
+    self.operating_system = operating_system
 
-    op = webdriver.ChromeOptions()
-    if headless:
-      op.add_argument('headless')
-    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
+    driver_path = os.path.join(os.getcwd(), "files", "driver", self.operating_system)
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split(".")[0]
+    chromedriver_autoinstaller.install(path=driver_path)
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--single-process")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    self.driver = webdriver.Chrome(
+        executable_path=f'./files/driver/{self.operating_system}/{chrome_ver}/chromedriver',
+        chrome_options=chrome_options
+    )
 
 
   def wait_until_kst(

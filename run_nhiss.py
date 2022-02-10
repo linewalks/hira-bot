@@ -16,7 +16,7 @@ from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
 
 def init_nhiss_bot(headless: bool=False):
-  nhiss_bot = NhissBot(os=OS, headless=headless)
+  nhiss_bot = NhissBot(operating_system=OS, headless=headless)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
   nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
   nhiss_bot.setCredential(
