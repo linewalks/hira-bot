@@ -67,8 +67,6 @@ def run(target_day, headless: bool= False, debug: bool = True):
 
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
   start = time.time()
-  # chrome driver check
-  check_driver()
   # Nhiss Bot 설정.
   bot = init_nhiss_bot(headless)
   
