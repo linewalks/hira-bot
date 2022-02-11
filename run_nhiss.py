@@ -1,3 +1,5 @@
+import chromedriver_autoinstaller
+import os
 import time
 from typing import List
 from datetime import timedelta, datetime
@@ -15,6 +17,12 @@ from nhiss.configs.nhiss_cfg import (
 from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
 
+def check_driver():
+  driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
+  chromedriver_autoinstaller.install(path=driver_path)
+  print("driver check 완료")
+
+
 def init_nhiss_bot(headless: bool=False):
   nhiss_bot = NhissBot(operating_system=OS, headless=headless)
   nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
@@ -30,6 +38,7 @@ def init_nhiss_bot(headless: bool=False):
 
 def run(target_day, headless: bool= False, debug: bool = True):
   start = time.time()
+
   # Nhiss Bot 설정.
   bot = init_nhiss_bot(headless)
   
@@ -45,8 +54,7 @@ def run(target_day, headless: bool= False, debug: bool = True):
       bot.apply() # 예약 신청 버튼 클릭.
     print("------------------------------------------------------------------ 성공 -------------------------")
     result = True
-  else:
-    bot.quit()  # 브라우저를 종료.    
+  else:   
     result = False
 
   time.sleep(1)
@@ -59,6 +67,8 @@ def run(target_day, headless: bool= False, debug: bool = True):
 
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
   start = time.time()
+  # chrome driver check
+  check_driver()
   # Nhiss Bot 설정.
   bot = init_nhiss_bot(headless)
   
@@ -131,6 +141,8 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
   target_day = args.run_until_success
+  # chrome driver check
+  check_driver()
   if target_day:
     try:
       validate(target_day)
