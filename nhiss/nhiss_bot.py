@@ -1,3 +1,4 @@
+import chromedriver_autoinstaller
 import time
 import requests
 from typing import List
@@ -40,14 +41,16 @@ RESEARCH_CENTER_XPATH_MAP = {
 
 class NhissBot:
   
-  def __init__(self, os: str, headless: bool=False):
-    self.os = os
-
-    op = webdriver.ChromeOptions()
+  def __init__(self, operating_system: str, headless: bool=False):
+    self.operating_system = operating_system
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split(".")[0]
+    chrome_options = webdriver.ChromeOptions()
     if headless:
-      op.add_argument('headless')
-    self.driver = webdriver.Chrome(executable_path=f'./files/driver/{self.os}/chromedriver', options=op)
-
+      chrome_options.add_argument("--headless")
+    self.driver = webdriver.Chrome(
+        executable_path=f'./files/driver/{self.operating_system}/{chrome_ver}/chromedriver',
+        chrome_options=chrome_options
+    )
 
   def wait_until_kst(
         self, 

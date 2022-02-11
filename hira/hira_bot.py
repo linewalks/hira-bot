@@ -1,3 +1,5 @@
+import chromedriver_autoinstaller
+import os
 import time
 import requests
 from datetime import timedelta, datetime
@@ -20,10 +22,21 @@ from hira.config import (
 format = "%a, %d %b %Y %H:%M:%S %Z"
 
 class HiraBot():
-
-
   def init_driver(self):
-    driver = webdriver.Chrome(f"./files/driver/{OS}/chromedriver")
+    driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
+    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split(".")[0]
+    chromedriver_autoinstaller.install(path=driver_path)
+
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--single-process")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(
+        f"{driver_path}/{chrome_ver}/chromedriver",
+        chrome_options=chrome_options
+    )
     return driver
 
 

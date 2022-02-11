@@ -15,14 +15,11 @@ branch_list = [
 
 # YYYYMMDD
 priority_list = [
-  ('20210503', '20210504'),
-  ('20210505', '20210506'),
-  ('20210506', '20210507'),
-  ('20210504', '20200505')
+  ('20220211', '20220212'),
 ]
 
-OS = "" # macos, linux, windows
-TARGET_DATE = "" # Example Data Format: 2021-12-29 19:01:00
+OS = "windows" # macos, linux, windows
+TARGET_DATE = "2022-02-10 14:29:00" # Example Data Format: 2021-12-29 19:01:00
 ### 로그인 정보
-LOGIN_ID = ""
-LOGIN_PASSWORD = ""
+LOGIN_ID = "jindex2411"
+LOGIN_PASSWORD = "q1w2e3r4t5!"
