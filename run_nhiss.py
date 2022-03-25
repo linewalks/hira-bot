@@ -3,6 +3,7 @@ import os
 import time
 from typing import List
 from datetime import timedelta, datetime
+from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from utils.helper import count_down, send_message, validate
 from nhiss.configs.nhiss_cfg import (
@@ -17,8 +18,16 @@ from nhiss.configs.nhiss_cfg import (
 from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
 def check_driver():
+  chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
   driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
-  chromedriver_autoinstaller.install(path=driver_path)
+
+  try:
+    driver = webdriver.Chrome(f'{driver_path}/{chrome_ver}/chromedriver')   
+  except:
+    chromedriver_autoinstaller.install(path=driver_path)
+    driver = webdriver.Chrome(f'{driver_path}/{chrome_ver}/chromedriver')
+  
+  driver.implicitly_wait(3)
   print("driver check 완료")
 
 
