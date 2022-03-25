@@ -125,6 +125,15 @@ class NhissBot:
   def selectReservationDate(self, target_day = None):
     return self.__select_reservation_date(target_day)
 
+  # 연구명 가져오기
+  def getResearchName(self):
+    try:
+      WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
+      research_name = self.driver.find_element_by_id("ods_WSF_1_insert_RSCH_NM").get_attribute("value")
+
+      return research_name
+    except:
+      raise Exception("연구명 Fetch Error")
 
   # 신청
   def clickApplyButtonAndCheckSuccess(self):
@@ -136,7 +145,7 @@ class NhissBot:
       return True if "예약이 완료" in alert.text else False
     except Exception as e:
       print(e)
-      return False
+      raise Exception("연구 신청 Error")
 
   def refresh(self):
     self.driver.refresh()
