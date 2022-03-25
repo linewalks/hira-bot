@@ -16,7 +16,6 @@ from nhiss.configs.nhiss_cfg import (
 )
 from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
-
 def check_driver():
   driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
   chromedriver_autoinstaller.install(path=driver_path)
@@ -70,11 +69,27 @@ def run(target_day, headless: bool= False, debug: bool = True):
   print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
   return result
 
+# 예약 정보 채우기
+def reservation_content_fill(target_day, headless: bool= False):
+  try:
+    # Nhiss Bot 설정.
+    bot = init_nhiss_bot(headless)
+    
+    # NHISS 로그인.
+    bot.login()
+    # NHISS 예약 신청 작업 실행.
+    bot.selectReservationOptions()  
+    reservation_date = bot.selectReservationDate(target_day)
+    reservation_research_name = bot.getResearchName()
+
+    return {
+      "reservation_research_name": reservation_research_name
+    }
+  except WebDriverException as e:
+    raise Exception("예약 정보 입력 실패!")
 
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
   start = time.time()
-  # Nhiss Bot 설정.
-  bot = init_nhiss_bot(headless)
   
   today = datetime.now()
   next_day = today + timedelta(days = 1)
@@ -98,22 +113,44 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
   print(f"[Bot]] Elapsed: {elapsed}")
   if is_reservation_success:
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
+  if booking_success:
+    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
+
   else:
-    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
+    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
   time.sleep(10)
   bot.quit()
 
 
 def run_until_success(target_day, headless: bool = False):
   while True:
+    bot = None
+    start = time.time()
+
     try:
-      result = run(target_day, headless, debug=False)
+      result = reservation_content_fill(target_day, headless)
+      bot = result['bot']
+
       if result:
-        send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 run_until_success 예약 성공하였습니다! target day: {target_day}")
+        bot.apply() # 예약 신청 버튼 클릭
+        send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
+
+        # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
+        print("------------------------------- 성공 -------------------------")
         break
     except WebDriverException as e:
       print("!!!!!!!!!!!!!!!!!!!!!!!!!!! WebDriverException 발생 !!!!!!!!!!!!!!!!!!!!!!!!!!!")
       count_down(5)
+    except Exception as err:
+      print(f"{str(err)}")
+      count_down(5)
+    finally:
+      time.sleep(1)
+      bot.quit()
+    
+    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    elapsed = time.time() - start
+    print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
 
 
 if __name__ == "__main__":
