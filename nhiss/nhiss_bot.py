@@ -102,17 +102,30 @@ class NhissBot:
 
   def login(self):
     # 로그인 페이지 접속
-    self.wait = WebDriverWait(self.driver, timeout=1)
-    self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
+    try:
+      self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
+      self.wait = WebDriverWait(self.driver, timeout=10)
+    except:
+      raise Exception('Chrome 드라이버 로딩 에러')
+
     # 로그인
     # TODO: 계정 정보 config 파일로 이동
-    self.driver.find_element_by_id('j_username').send_keys(self.user_id)
-    self.driver.find_element_by_id('j_password').send_keys(self.user_pwd)
+    try:
+      username_field = self.driver.find_element_by_id('j_username')
+      password_field = self.driver.find_element_by_id('j_password')
 
-    # Fix: send_keys 의 Cannot construct KeyEvent from non-typeable key 문제 해결
-    action = ActionChains(self.driver)
-    action.key_down(Keys.RETURN).perform()
+      if username_field is None:
+        raise Exception('페이지 로딩 에러')
 
+      username_field.send_keys(self.user_id)
+      password_field.send_keys(self.user_pwd)
+
+      # Cannot construct KeyEvent from non-typeable key 문제 해결
+      action = ActionChains(self.driver)
+      action.key_down(Keys.RETURN).perform()
+    except:
+      raise Exception('페이지 로딩 에러')
+    
     # 로그인 후 팝업 닫기
     main = self.driver.window_handles 
     for handle in main: 
