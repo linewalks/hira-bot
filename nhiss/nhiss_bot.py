@@ -4,6 +4,7 @@ import requests
 from typing import List
 from datetime import timedelta, datetime
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException
@@ -106,7 +107,12 @@ class NhissBot:
     # 로그인
     # TODO: 계정 정보 config 파일로 이동
     self.driver.find_element_by_id('j_username').send_keys(self.user_id)
-    self.driver.find_element_by_id('j_password').send_keys(self.user_pwd + Keys.RETURN)
+    self.driver.find_element_by_id('j_password').send_keys(self.user_pwd)
+
+    # Fix: send_keys 의 Cannot construct KeyEvent from non-typeable key 문제 해결
+    action = ActionChains(self.driver)
+    action.key_down(Keys.RETURN).perform()
+
     # 로그인 후 팝업 닫기
     main = self.driver.window_handles 
     for handle in main: 
