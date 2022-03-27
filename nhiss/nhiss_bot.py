@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from utils.helper import count_down, send_message
@@ -120,16 +120,23 @@ class NhissBot:
     self.__select_research_number()
     self.__select_research_center()
     self.__select_visitor()
-  
+
 
   def selectReservationDate(self, target_day = None):
     return self.__select_reservation_date(target_day)
-  
+
 
   # 신청
-  def apply(self):
-    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
-    self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
+  def clickApplyButtonAndCheckSuccess(self):
+    try:
+      WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
+      self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
+      time.sleep(0.5)  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
+      alert = self.driver.switch_to.alert
+      return True if "예약이 완료" in alert.text else False
+    except Exception as e:
+      print(e)
+      return False
 
   def refresh(self):
     self.driver.refresh()
