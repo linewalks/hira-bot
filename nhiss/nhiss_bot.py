@@ -198,8 +198,6 @@ class NhissBot:
       time.sleep(1)
       self.driver.switch_to.default_content()
 
-      # print(self.driver.page_source)
-
       if target_day is None:
         # Get target day which is two weeks later than today.
         #TODO: comment out line below. 
