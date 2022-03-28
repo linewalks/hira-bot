@@ -131,7 +131,7 @@ class NhissBot:
     try:
       WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
       self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
-      time.sleep(0.5)  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
+      WebDriverWait(self.driver, 3).until(EC.alert_is_present())  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
       alert = self.driver.switch_to.alert
       return True if "예약이 완료" in alert.text else False
     except Exception as e:
