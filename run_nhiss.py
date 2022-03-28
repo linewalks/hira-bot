@@ -17,6 +17,12 @@ from nhiss.configs.nhiss_cfg import (
 )
 from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
+def check_elapsed_time(start_time):
+  current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  end_time = time.time()
+  elapsed = end_time - start_time
+  print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
+
 def check_driver():
   chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
   driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
@@ -97,7 +103,7 @@ def reservation_content_fill(bot, target_day, check_date: bool = True):
     print(err)
 
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
-  start = time.time()
+  start_time = time.time()
   today = datetime.now()
   next_day = today + timedelta(days = 1)
 
@@ -119,10 +125,7 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
     booking_success = bot.apply() # 예약 신청 버튼 클릭.
     # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
     
-    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    end = time.time()
-    elapsed = end - start
-    print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
+    check_elapsed_time(start_time)
 
     if booking_success:
       send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
@@ -139,7 +142,7 @@ def run_until_success(target_day, headless: bool = False):
   while True:
     # Nhiss Bot 설정.
     bot = init_nhiss_bot(headless)
-    start = time.time()
+    start_time = time.time()
 
     try:
       result = reservation_content_fill(bot, target_day)
@@ -155,13 +158,9 @@ def run_until_success(target_day, headless: bool = False):
       print(f'예약 실패: {err}')
       count_down(5)
     finally:
+      check_elapsed_time(start_time)
       time.sleep(1)
       bot.quit()
-    
-    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    elapsed = time.time() - start
-    print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
-
 
 if __name__ == "__main__":
   from argparse import ArgumentParser, RawTextHelpFormatter
@@ -190,6 +189,7 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
   target_day = args.run_until_success
+  
   # chrome driver check
   check_driver()
   if target_day:
