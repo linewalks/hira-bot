@@ -36,25 +36,31 @@ def init_nhiss_bot(headless: bool=False):
   return nhiss_bot
 
 
+def click_reservation_button(bot, debug):  
+  is_click_success = bot.clickApplyButtonAndCheckSuccess()
+  if is_click_success:
+    print("================ 예약 신청 성공 =================")
+  else:
+    print("================ 예약 신청 실패 =================")
+  return is_click_success
+
+
 def run(target_day, headless: bool= False, debug: bool = True):
   start = time.time()
 
   # Nhiss Bot 설정.
   bot = init_nhiss_bot(headless)
-  
+
   # NHISS 로그인.
   bot.login()
   # NHISS 예약 신청 작업 실행.
   bot.selectReservationOptions()  
-  reservation_result = bot.selectReservationDate(target_day)
+  bot.selectReservationDate(target_day)
   current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-  result = None
-  if reservation_result:
-    if not debug:
-      bot.apply() # 예약 신청 버튼 클릭.
-    print("------------------------------------------------------------------ 성공 -------------------------")
+  is_reservation_success = click_reservation_button(bot, debug)
+  if is_reservation_success:
     result = True
-  else:   
+  else:
     result = False
 
   time.sleep(1)
@@ -83,16 +89,14 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
   if not debug:
     #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
     bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
-  
-  booking_success = bot.selectReservationDate(target_day)
 
-  if not debug:
-    bot.apply() # 예약 신청 버튼 클릭.
-  
+  bot.selectReservationDate(target_day)
+  is_reservation_success = click_reservation_button(bot, debug)
+
   end = time.time()
   elapsed = end - start
   print(f"[Bot]] Elapsed: {elapsed}")
-  if booking_success:
+  if is_reservation_success:
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
   else:
     send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
