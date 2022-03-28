@@ -26,10 +26,9 @@ def check_driver():
   except:
     chromedriver_autoinstaller.install(path=driver_path)
     driver = webdriver.Chrome(f'{driver_path}/{chrome_ver}/chromedriver')
-  
-  driver.implicitly_wait(3)
-  print("driver check 완료")
-
+  finally:
+    driver.implicitly_wait(3)
+    print("driver check 완료")
 
 def init_nhiss_bot(headless: bool=False):
   nhiss_bot = NhissBot(operating_system=OS, headless=headless)
@@ -79,66 +78,72 @@ def run(target_day, headless: bool= False, debug: bool = True):
   return result
 
 # 예약 정보 채우기
-def reservation_content_fill(target_day, headless: bool= False):
+def reservation_content_fill(bot, target_day, check_date: bool = True):
   try:
-    # Nhiss Bot 설정.
-    bot = init_nhiss_bot(headless)
-    
     # NHISS 로그인.
     bot.login()
     # NHISS 예약 신청 작업 실행.
-    bot.selectReservationOptions()  
-    reservation_date = bot.selectReservationDate(target_day)
+    bot.selectReservationOptions() 
+    if check_date: 
+      bot.selectReservationDate(target_day)
     reservation_research_name = bot.getResearchName()
 
     return {
-      "reservation_research_name": reservation_research_name
+      "reservation_research_name": reservation_research_name,
     }
   except WebDriverException as e:
     raise Exception("예약 정보 입력 실패!")
+  except Exception as err:
+    print(err)
 
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
   start = time.time()
-  
   today = datetime.now()
-  next_day = today + timedelta(days = 1)
 
-  if not debug:
-    #TODO: Set date and time to login.
-    bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
+  bot = init_nhiss_bot(headless)
 
-  bot.login()
-  bot.selectReservationOptions()
+  try:
+    if not debug:
+      # TODO: Set date and time to login.-
+      # bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
+      bot.wait_until_kst(today.year, today.month, today.day, today.hour, today.minute + 1, 0)
 
-  if not debug:
-    #TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-    bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
+    result = reservation_content_fill(bot, target_day, False)
 
-  bot.selectReservationDate(target_day)
-  is_reservation_success = click_reservation_button(bot, debug)
+    if not debug:
+      # TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
+      # bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
+      bot.wait_until_kst(today.year, today.month, today.day, today.hour, today.minute + 1, 20)
 
-  end = time.time()
-  elapsed = end - start
-  print(f"[Bot]] Elapsed: {elapsed}")
-  if is_reservation_success:
-    send_message(f"[Bot]{CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
-  if booking_success:
-    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}")
+    bot.selectReservationDate()
+    
+    booking_success = bot.apply() # 예약 신청 버튼 클릭.
+    # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
+    
+    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    end = time.time()
+    elapsed = end - start
+    print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
 
-  else:
+    if booking_success:
+      send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
+    else:
+      send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
+  except Exception as err:
+    print(err)
     send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
-  time.sleep(10)
-  bot.quit()
-
+  finally:
+    time.sleep(10)
+    bot.quit()
 
 def run_until_success(target_day, headless: bool = False):
   while True:
-    bot = None
+    # Nhiss Bot 설정.
+    bot = init_nhiss_bot(headless)
     start = time.time()
 
     try:
-      result = reservation_content_fill(target_day, headless)
-      bot = result['bot']
+      result = reservation_content_fill(bot, target_day)
 
       if result:
         bot.apply() # 예약 신청 버튼 클릭
@@ -147,11 +152,8 @@ def run_until_success(target_day, headless: bool = False):
         # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
         print("------------------------------- 성공 -------------------------")
         break
-    except WebDriverException as e:
-      print("!!!!!!!!!!!!!!!!!!!!!!!!!!! WebDriverException 발생 !!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      count_down(5)
     except Exception as err:
-      print(f"{str(err)}")
+      print(f'예약 실패: {err}')
       count_down(5)
     finally:
       time.sleep(1)
