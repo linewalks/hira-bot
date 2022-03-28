@@ -99,21 +99,20 @@ def reservation_content_fill(bot, target_day, check_date: bool = True):
 def run_on_time(target_day, headless: bool = False, debug: bool = True):
   start = time.time()
   today = datetime.now()
+  next_day = today + timedelta(days = 1)
 
   bot = init_nhiss_bot(headless)
 
   try:
     if not debug:
       # TODO: Set date and time to login.-
-      # bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
-      bot.wait_until_kst(today.year, today.month, today.day, today.hour, today.minute + 1, 0)
+      bot.wait_until_kst(today.year, today.month, today.day, 23, 55, 0)
 
     result = reservation_content_fill(bot, target_day, False)
 
     if not debug:
       # TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-      # bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
-      bot.wait_until_kst(today.year, today.month, today.day, today.hour, today.minute + 1, 20)
+      bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
 
     bot.selectReservationDate()
     
