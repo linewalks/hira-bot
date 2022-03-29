@@ -210,7 +210,7 @@ class NhissBot:
         self.driver.switch_to.frame('cmsView')
         return True
       else:
-        raise Exception(f'해당 날짜({target_day})에 맞는 좌석을 찾을 수 없습니다.')
+        raise Exception(f'해당 날짜({target_day})에 맞는 좌석을 선택할 수 없습니다.')
     except Exception as err:
       print(err)
       raise Exception('날짜 선택 실패!')
