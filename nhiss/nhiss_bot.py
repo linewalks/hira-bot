@@ -4,9 +4,10 @@ import requests
 from typing import List
 from datetime import timedelta, datetime
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from utils.helper import count_down, send_message
@@ -101,12 +102,32 @@ class NhissBot:
 
   def login(self):
     # 로그인 페이지 접속
-    self.wait = WebDriverWait(self.driver, timeout=1)
-    self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
+    try:
+      self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya003iv.do')
+      self.wait = WebDriverWait(self.driver, timeout=10)
+    except:
+      raise Exception('Chrome 드라이버 로딩 에러')
+
     # 로그인
     # TODO: 계정 정보 config 파일로 이동
-    self.driver.find_element_by_id('j_username').send_keys(self.user_id)
-    self.driver.find_element_by_id('j_password').send_keys(self.user_pwd + Keys.RETURN)
+    try:
+      username_field = self.driver.find_element_by_id('j_username')
+      password_field = self.driver.find_element_by_id('j_password')
+
+      if username_field is None:
+        raise Exception('페이지 로딩 에러')
+
+      username_field.send_keys(self.user_id)
+      password_field.send_keys(self.user_pwd)
+
+      # Cannot construct KeyEvent from non-typeable key 문제 해결
+      action = ActionChains(self.driver)
+      action.key_down(Keys.RETURN).perform()
+
+    except WebDriverException as err:
+      print(err)
+      raise Exception('아이디, 패스워드 자동 입력 에러')
+    
     # 로그인 후 팝업 닫기
     main = self.driver.window_handles 
     for handle in main: 
@@ -125,18 +146,26 @@ class NhissBot:
   def selectReservationDate(self, target_day = None):
     return self.__select_reservation_date(target_day)
 
+  # 연구명 가져오기
+  def getResearchName(self):
+    try:
+      research_name = self.driver.find_element_by_id("ods_WSF_1_insert_RSCH_NM").get_attribute("value")
+
+      return research_name
+    except Exception as err:
+      print(err)
+      raise Exception("연구명 Fetch Error")
 
   # 신청
   def clickApplyButtonAndCheckSuccess(self):
     try:
-      WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
       self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
       WebDriverWait(self.driver, 3).until(EC.alert_is_present())  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
       alert = self.driver.switch_to.alert
       return True if "예약이 완료" in alert.text else False
     except Exception as e:
       print(e)
-      return False
+      raise Exception("연구 신청 Error")
 
   def refresh(self):
     self.driver.refresh()
@@ -163,30 +192,43 @@ class NhissBot:
 
   # 예약일자 선택
   def __select_reservation_date(self, target_day = None):
-    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
-    WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
-    time.sleep(1)
-    self.driver.switch_to.default_content()
+    # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
+    try:
+      WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
 
+      # 예약일자 선택창 대기
+      time.sleep(1)
+      self.driver.switch_to.default_content()
 
-    if target_day is None:
-      # Get target day which is two weeks later than today.
-      #TODO: comment out line below. 
-      target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
+      if target_day is None:
+        # Get target day which is two weeks later than today.
+        #TODO: comment out line below. 
+        target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
-    
-    target_index = get_target_index_js(self.driver, target_day)
-    if target_index != -1:
-      select_target_day_with_index_js(self.driver, target_index)
-      return True
-    else:
-      return False
+      target_index = get_target_index_js(self.driver, target_day)
+      time.sleep(0.2)
+      
+      if target_index != -1:
+        select_target_day_with_index_js(self.driver, target_index)
+        self.driver.switch_to.frame('cmsView')
+        return True
+      else:
+        raise Exception(f'해당 날짜({target_day})에 맞는 좌석을 선택할 수 없습니다.')
+    except Exception as err:
+      print(err)
+      raise Exception('날짜 선택 실패!')
 
-
+  # 방문객 선택
   def __select_visitor(self):
-    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()  
+    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click() 
+
+    # 방문자 선택창 대기
     time.sleep(1)
     self.driver.switch_to.default_content()
+    
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
+
+    time.sleep(0.2)
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
+    self.driver.switch_to.frame('cmsView')
