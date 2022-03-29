@@ -195,6 +195,8 @@ class NhissBot:
     # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
     try:
       WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
+
+      # 예약일자 선택창 대기
       time.sleep(1)
       self.driver.switch_to.default_content()
 
@@ -218,7 +220,9 @@ class NhissBot:
 
   # 방문객 선택
   def __select_visitor(self):
-    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click()  
+    self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click() 
+
+    # 방문자 선택창 대기
     time.sleep(1)
     self.driver.switch_to.default_content()
     
