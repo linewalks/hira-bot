@@ -204,7 +204,8 @@ class NhissBot:
         target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
       target_index = get_target_index_js(self.driver, target_day)
-
+      time.sleep(0.2)
+      
       if target_index != -1:
         select_target_day_with_index_js(self.driver, target_index)
         self.driver.switch_to.frame('cmsView')
@@ -224,5 +225,6 @@ class NhissBot:
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
 
+    time.sleep(0.2)
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
     self.driver.switch_to.frame('cmsView')
