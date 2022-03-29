@@ -52,7 +52,7 @@ def init_nhiss_bot(headless: bool=False):
   return nhiss_bot
 
 # 예약 버튼 클릭
-def click_reservation_button(bot, debug):  
+def click_reservation_button(bot, debug: bool = True):  
   try:
     is_click_success = bot.clickApplyButtonAndCheckSuccess()
 
