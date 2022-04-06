@@ -48,6 +48,9 @@ class NhissBot:
     chrome_options = webdriver.ChromeOptions()
     if headless:
       chrome_options.add_argument("--headless")
+      chrome_options.add_argument("--no-sandbox")
+      
+    chrome_options.add_argument("--disable-software-rasterizer")
     self.driver = webdriver.Chrome(
         executable_path=f'./files/driver/{self.operating_system}/{chrome_ver}/chromedriver',
         chrome_options=chrome_options
