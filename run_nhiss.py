@@ -26,7 +26,7 @@ def check_elapsed_time(start_time):
 
 # Chrome driver 체크
 def check_driver():
-  driver = webdriver.Chrome(serviec=Service(ChromeDriverManager().install()))
+  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
   driver.implicitly_wait(3)
   print("driver check 완료")
 
