@@ -1,9 +1,9 @@
-import chromedriver_autoinstaller
-import os
 import time
 from typing import List
 from datetime import timedelta, datetime
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
 from utils.helper import count_down, send_message, validate
 from nhiss.configs.nhiss_cfg import (
@@ -26,17 +26,9 @@ def check_elapsed_time(start_time):
 
 # Chrome driver 체크
 def check_driver():
-  chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-  driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
-
-  try:
-    driver = webdriver.Chrome(f'{driver_path}/{chrome_ver}/chromedriver')   
-  except:
-    chromedriver_autoinstaller.install(path=driver_path)
-    driver = webdriver.Chrome(f'{driver_path}/{chrome_ver}/chromedriver')
-  finally:
-    driver.implicitly_wait(3)
-    print("driver check 완료")
+  driver = webdriver.Chrome(serviec=Service(ChromeDriverManager().install()))
+  driver.implicitly_wait(3)
+  print("driver check 완료")
 
 # nhiss 봇 초기화
 def init_nhiss_bot(headless: bool=False):
