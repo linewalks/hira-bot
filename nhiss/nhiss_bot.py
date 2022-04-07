@@ -55,7 +55,6 @@ class NhissBot:
         service=Service(ChromeDriverManager().install()),
         chrome_options=chrome_options
     )
-    self.driver.implicitly_wait(3)
     print("driver check 완료")
 
   def wait_until_kst(
