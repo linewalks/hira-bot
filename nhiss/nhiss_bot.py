@@ -1,10 +1,11 @@
-import chromedriver_autoinstaller
 import time
 import requests
 from typing import List
 from datetime import timedelta, datetime
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
@@ -44,7 +45,6 @@ class NhissBot:
   
   def __init__(self, operating_system: str, headless: bool=False):
     self.operating_system = operating_system
-    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split(".")[0]
     chrome_options = webdriver.ChromeOptions()
     if headless:
       chrome_options.add_argument("--headless")
@@ -52,9 +52,11 @@ class NhissBot:
       
     chrome_options.add_argument("--disable-software-rasterizer")
     self.driver = webdriver.Chrome(
-        executable_path=f'./files/driver/{self.operating_system}/{chrome_ver}/chromedriver',
+        service=Service(ChromeDriverManager().install()),
         chrome_options=chrome_options
     )
+    self.driver.implicitly_wait(3)
+    print("driver check 완료")
 
   def wait_until_kst(
         self, 
@@ -186,7 +188,7 @@ class NhissBot:
   def __go_to_my_service(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
     time.sleep(1)
-    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it("cmsView"))
+    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
 
   # 센터구분
   def __select_research_center(self):

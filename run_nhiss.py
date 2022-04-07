@@ -1,9 +1,6 @@
 import time
 from typing import List
 from datetime import timedelta, datetime
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import WebDriverException
 from utils.helper import count_down, send_message, validate
 from nhiss.configs.nhiss_cfg import (
@@ -23,12 +20,6 @@ def check_elapsed_time(start_time):
   end_time = time.time()
   elapsed = end_time - start_time
   print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
-
-# Chrome driver 체크
-def check_driver():
-  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-  driver.implicitly_wait(3)
-  print("driver check 완료")
 
 # nhiss 봇 초기화
 def init_nhiss_bot(headless: bool=False):
@@ -165,8 +156,6 @@ if __name__ == "__main__":
   args = parser.parse_args()
   target_day = args.run_until_success
   
-  # chrome driver check
-  check_driver()
   if target_day:
     try:
       validate(target_day)
