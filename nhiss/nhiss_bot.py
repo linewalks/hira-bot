@@ -88,8 +88,8 @@ class NhissBot:
     try:
       while time_to_wait_sec > 0:
         print('left time seconds: ', time_to_wait_sec, flush=True)
-        time.sleep(time_to_wait_sec if time_to_wait_sec < 30 else 30)
-        time_to_wait_sec -= 30
+        time.sleep(time_to_wait_sec if time_to_wait_sec < 10 else 10)
+        time_to_wait_sec -= 10
     except ValueError:
       print('[HiraBot][TargetTimeError] Target Time must be in the future', flush=True)
       exit(1)
