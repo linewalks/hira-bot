@@ -87,7 +87,7 @@ class NhissBot:
     time_to_wait_sec = float(delta.total_seconds())
     try:
       while time_to_wait_sec > 0:
-        print('left time seconds: ', time_to_wait_sec)
+        print('left time seconds: ', time_to_wait_sec, flush=True)
         time.sleep(time_to_wait_sec if time_to_wait_sec < 30 else 30)
         time_to_wait_sec -= 30
     except ValueError:
