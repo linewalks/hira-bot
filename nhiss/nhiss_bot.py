@@ -46,11 +46,13 @@ class NhissBot:
   def __init__(self, operating_system: str, headless: bool=False):
     self.operating_system = operating_system
     chrome_options = webdriver.ChromeOptions()
+
     if headless:
       chrome_options.add_argument("--headless")
       chrome_options.add_argument("--no-sandbox")
       
-    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_experimental_option("excludeSwitches", ['enable-logging'])
+    chrome_options.add_argument("--disable-gpu")
     self.driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()),
         chrome_options=chrome_options
@@ -84,11 +86,14 @@ class NhissBot:
     delta = target_datetime - cur_kst_time
     time_to_wait_sec = float(delta.total_seconds())
     try:
-      time.sleep(time_to_wait_sec)
+      while time_to_wait_sec > 0:
+        print('left time seconds: ', time_to_wait_sec)
+        time.sleep(time_to_wait_sec if time_to_wait_sec < 30 else 30)
+        time_to_wait_sec -= 30
     except ValueError:
-      print('[HiraBot][TargetTimeError] Target Time must be in the future')
+      print('[HiraBot][TargetTimeError] Target Time must be in the future', flush=True)
       exit(1)
-    print('[HiraBot] Time to activate HiraBot!')
+    print('[HiraBot] Time to activate HiraBot!', flush=True)
 
   def setCredential(self, id, pwd, name):
     self.user_id = id
