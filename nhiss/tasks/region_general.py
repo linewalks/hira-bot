@@ -21,7 +21,7 @@ def reservation_content_fill(bot, target_day, check_date: bool = True):
     return {
       "reservation_research_name": reservation_research_name,
     }
-  except WebDriverException as e:
+  except WebDriverException:
     raise Exception("예약 정보 입력 실패!")
   except Exception as err:
     print(err)
