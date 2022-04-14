@@ -2,12 +2,17 @@ import time
 from datetime import timedelta, datetime
 from selenium.common.exceptions import WebDriverException
 from utils.helper import count_down, send_message, check_elapsed_time
+from utils.message import success_msg, failure_msg
 from nhiss.configs.nhiss_cfg import (
   RESEARCH_CENTER_XPATH,
   CREDENTIAL_NAME,
 )
 from nhiss.tasks.common import init_nhiss_bot, click_reservation_button
 from nhiss.nhiss_bot import RESEARCH_CENTER_XPATH_MAP
+
+user_name = CREDENTIAL_NAME
+region = RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]
+
 
 # 예약 정보 채우기
 def reservation_content_fill(bot, target_day, check_date: bool = True):
@@ -56,10 +61,11 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
     # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
     
     if is_reservation_success:
-      send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
+      send_message(success_msg(user_name, region, target_day, result['reservation_research_name']))
+
   except Exception as err:
     print(err)
-    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
+    send_message(failure_msg(user_name, region, target_day))
   finally:
     check_elapsed_time(start_time)
     time.sleep(10)
@@ -80,8 +86,7 @@ def run_until_success(target_day, headless: bool = False):
 
         if is_reservation_success: 
           # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
-          send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
-          break    
+          send_message(success_msg(user_name, region, target_day, result['reservation_research_name']))
 
     except Exception as err:
       print(err)
