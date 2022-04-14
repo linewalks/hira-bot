@@ -7,7 +7,12 @@ from nhiss.configs.nhiss_cfg import (
   CREDENTIAL_NAME,
   RESEARCH_VISITER_LIST,
 )
-from nhiss.nhiss_bot import NhissBot
+from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
+
+register_info = {
+  "user_name" : CREDENTIAL_NAME,
+  "region" : RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]
+}
 
 # nhiss 봇 초기화
 def init_nhiss_bot(headless: bool=False):
