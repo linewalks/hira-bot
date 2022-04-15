@@ -188,7 +188,6 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "WSF_1_insert_APLY_MGMT_NO_label"))).click()
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_number_xpath))).click()
 
-
   # MY서비스 - 분석센터이용 페이지로 이동
   def __go_to_general_register(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
@@ -200,7 +199,6 @@ class NhissBot:
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002Slv.do')
     time.sleep(1)
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
-
 
   # 센터구분
   def __select_research_center(self):
@@ -224,7 +222,7 @@ class NhissBot:
 
       # 예약일자 선택
       target_index = get_target_index_js(self.driver, target_day)
-      time.sleep(0.2)
+      time.sleep(0.5)
       
       if target_index != -1:
         if is_seoul:
