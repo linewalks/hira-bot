@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
   parser.add_argument(
       "-seoul",
-      type= str,
+      action="store_true",
       help='서울 지역에서 신청하는 옵션 (사용하지 않으면 일반 지역 신청)'
   )
 
