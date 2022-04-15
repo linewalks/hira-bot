@@ -69,4 +69,5 @@ if __name__ == "__main__":
     register_info = RegisterInfo(user_name, target_day, region, is_register_am, is_seoul)
 
     target_day_msg = convert_target_day(target_day, is_register_am, is_seoul)
+    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day_msg}")
     run_on_time(register_info, args.headless, debug=False)
