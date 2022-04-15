@@ -1,6 +1,7 @@
 from selenium.common.exceptions import JavascriptException, WebDriverException
 from time import sleep
 time_to_wait = 0.5
+
 def get_target_index_js(driver, target_day):
   try:
     return driver.execute_script("""
@@ -19,6 +20,25 @@ def get_target_index_js(driver, target_day):
   except:
     sleep(time_to_wait)
     return get_target_index_js(driver, target_day)
+
+def get_target_index_js_in_seoul(driver, target_day):
+  try:
+      return driver.execute_script("""
+      var target_day =  arguments[0]
+      var row_count = window[2].WShtAC_1.GetRowCount()
+      var target_index = -1
+      for (var i = 0; i < row_count; i++){
+        var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+        if (target_day == cur_row_date){
+          target_index = i
+          break;
+        }   
+      }
+      return target_index
+    """, target_day)
+  except:
+    sleep(time_to_wait)
+    return get_target_index_js_in_seoul(driver, target_day)
 
 
 def select_target_day_with_index_js(driver, target_index):
