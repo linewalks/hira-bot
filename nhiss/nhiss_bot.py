@@ -11,11 +11,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from utils.helper import count_down, send_message
 from nhiss.helper_js import (
   get_target_index_js,
-  get_target_index_js_in_seoul,
   select_target_day_with_index_js,
+  select_target_day_with_index_js_in_seoul,
   select_visitor_js
 )
 
@@ -82,7 +81,7 @@ class NhissBot:
 
     delta = target_datetime - cur_kst_time
     time_to_wait_sec = float(delta.total_seconds())
-    
+
     try:
       while time_to_wait_sec > 0:
         print('left time seconds: ', time_to_wait_sec, flush=True)
@@ -202,7 +201,7 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_center_xpath))).click()
 
   # 예약일자 선택
-  def __select_reservation_date(self, target_day = None, is_seoul = False):
+  def __select_reservation_date(self, target_day, is_register_am, is_seoul = False):
     # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
     try:
       WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
@@ -217,16 +216,14 @@ class NhissBot:
         target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
       # 예약일자 선택
-      target_index = -1
-      if is_seoul:
-        target_index = get_target_index_js_in_seoul(self.driver, target_day)
-      else:
-        target_index = get_target_index_js(self.driver, target_day)
-      
+      target_index = get_target_index_js(self.driver, target_day)
       time.sleep(0.2)
         
       if target_index != -1:
-        select_target_day_with_index_js(self.driver, target_index)
+        if is_seoul:
+          select_target_day_with_index_js_in_seoul(self.driver, target_index, is_register_am) 
+        else:
+          select_target_day_with_index_js(self.driver, target_index)
         self.driver.switch_to.frame('cmsView')
         return True
       else:
