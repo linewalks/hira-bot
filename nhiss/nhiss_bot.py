@@ -249,6 +249,6 @@ class NhissBot:
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
 
-    time.sleep(0.2)
+    time.sleep(0.5)
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
     self.driver.switch_to.frame('cmsView')
