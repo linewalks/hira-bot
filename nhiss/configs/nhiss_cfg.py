@@ -9,4 +9,4 @@ CREDENTIAL_PWD = '!'
 CREDENTIAL_NAME = ''
 RESEARCH_VISITER_LIST = ['']                #TODO: 방문자 이름 등록.
 NOTIFICATION_FLAG = True
-REGISTER_AM = True                              # 서울 지역 신청 시 오전, 오후 시간대에 등록 (일반은 영향 x)
+
