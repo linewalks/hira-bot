@@ -7,10 +7,9 @@ from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_r
 
 def run_on_time(info, headless: bool = False, debug: bool = True):
   register_info = info.getInfo()
-  target_day_msg = register_info['target_day']
-
-  if register_info['is_seoul']:
-    target_day_msg = convert_target_day(register_info['target_day'], register_info['is_register_am'])
+  target_day_msg = convert_target_day(
+    register_info['target_day'], register_info['is_register_am'], register_info['is_seoul']
+  )
 
   start_time = time.time()
   today = datetime.now()
@@ -65,10 +64,9 @@ def run_until_success(info, headless: bool = False):
         is_reservation_success = click_reservation_button(bot) 
 
         if is_reservation_success:
-          target_day_msg = register_info['target_day']
-
-          if register_info['is_seoul']:
-            target_day_msg = convert_target_day(register_info['target_day'], register_info['is_register_am'])
+          target_day_msg = convert_target_day(
+            register_info['target_day'], register_info['is_register_am'], register_info['is_seoul']
+          )
 
           # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
           send_message(success_msg(register_info['user_name'], register_info['region'], target_day_msg, result['reservation_research_name']))
