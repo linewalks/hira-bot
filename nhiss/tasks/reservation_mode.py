@@ -61,8 +61,13 @@ def run_until_success(info, headless: bool = False):
         is_reservation_success = click_reservation_button(bot) 
 
         if is_reservation_success: 
+          target_day = register_info['target_day']
+
+          if register_info['is_seoul']:
+            target_day += '(오전)' if register_info['is_register_am'] else '(오후)'
+
           # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
-          send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
+          send_message(success_msg(register_info['user_name'], register_info['region'], target_day, result['reservation_research_name']))
           break
 
     except Exception as err:
