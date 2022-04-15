@@ -153,8 +153,8 @@ class NhissBot:
       self.__select_research_center()
       self.__select_visitor()
 
-  def selectReservationDate(self, target_day = None, is_seoul = False):
-    return self.__select_reservation_date(target_day, is_seoul)
+  def selectReservationDate(self, target_day, is_register_am, is_seoul):
+    return self.__select_reservation_date(target_day, is_register_am, is_seoul)
 
   # 연구명 가져오기
   def getResearchName(self):
@@ -208,13 +208,13 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_center_xpath))).click()
 
   # 예약일자 선택
-  def __select_reservation_date(self, target_day, is_register_am, is_seoul = False):
+  def __select_reservation_date(self, target_day, is_register_am, is_seoul):
     # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
     try:
       WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
 
       # 예약일자 선택창 대기
-      time.sleep(1)
+      time.sleep(1.5)
       self.driver.switch_to.default_content()
 
       if target_day is None:
@@ -225,7 +225,7 @@ class NhissBot:
       # 예약일자 선택
       target_index = get_target_index_js(self.driver, target_day)
       time.sleep(0.2)
-        
+      
       if target_index != -1:
         if is_seoul:
           select_target_day_with_index_js_in_seoul(self.driver, target_index, is_register_am) 

@@ -27,7 +27,7 @@ def run_on_time(info, headless: bool = False, debug: bool = True):
       bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 0, 0, 0)
 
     # 2. 갱신된 날짜 테이블 내에서 선택
-    bot.selectReservationDate(is_seoul = register_info['is_seoul'])
+    bot.selectReservationDate(is_register_am = register_info['is_register_am'], is_seoul = register_info['is_seoul'])
     
     # 3. 예약 신청
     is_reservation_success = click_reservation_button(bot, debug) 
@@ -47,14 +47,14 @@ def run_on_time(info, headless: bool = False, debug: bool = True):
 
 def run_until_success(info, headless: bool = False):
   register_info = info.getInfo()
-  
+
   while True:
     bot = init_nhiss_bot(headless)
     start_time = time.time()
 
     try: 
       # 1. 예약 신청 내용 입력
-      result = reservation_content_fill(bot, register_info['target_day'], register_info['is_seoul'], check_date = True)
+      result = reservation_content_fill(bot, register_info['target_day'], register_info['is_register_am'], register_info['is_seoul'], check_date = True)
 
       if result:
         # 2. 예약 신청
