@@ -144,11 +144,11 @@ class NhissBot:
   
   def selectReservationOptions(self, region):
     if region == 'seoul':
-      self.__go_to_my_service()
+      self.__go_to_seoul_register()
       self.__select_research_number()
       self.__select_visitor()
     else:
-      self.__go_to_my_service()
+      self.__go_to_general_register()
       self.__select_research_number()
       self.__select_research_center()
       self.__select_visitor()
@@ -190,10 +190,17 @@ class NhissBot:
 
 
   # MY서비스 - 분석센터이용 페이지로 이동
-  def __go_to_my_service(self):
+  def __go_to_general_register(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
     time.sleep(1)
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
+
+  # 예약신청(서울) 메뉴로 이동
+  def __go_to_seoul_register(self):
+    self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002Slv.do')
+    time.sleep(1)
+    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
+
 
   # 센터구분
   def __select_research_center(self):
@@ -238,7 +245,7 @@ class NhissBot:
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click() 
 
     # 방문자 선택창 대기
-    time.sleep(1)
+    time.sleep(2)
     self.driver.switch_to.default_content()
     
     for visiter in self.visiters:
