@@ -188,7 +188,7 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "WSF_1_insert_APLY_MGMT_NO_label"))).click()
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_number_xpath))).click()
 
-  # MY서비스 - 분석센터이용 페이지로 이동
+  # 예약신청(일반) 메뉴로 이동
   def __go_to_general_register(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
     time.sleep(1)
