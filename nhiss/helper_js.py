@@ -11,6 +11,7 @@ def get_target_index_js(driver, target_day):
 
       for (var i = 0; i < row_count; i++){
         var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+
         if (target_day == cur_row_date){
           target_index = i
           break;
@@ -24,21 +25,22 @@ def get_target_index_js(driver, target_day):
 
 def select_target_day_with_index_js(driver, target_index):
   driver.execute_script("""
-    var target_index =  arguments[0]
+    var target_index = arguments[0]
 
     window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
     window[2].BTN_SELECT_Click()
   """, target_index)
 
 def select_target_day_with_index_js_in_seoul(driver, target_index, is_register_am):
-  column_index = 1 if is_register_am else 2
+  col_name = 'AM_CHK' if is_register_am else 'PM_CHK'
 
-  driver.execute_script(f"""
-    var target_index =  arguments[0]
+  driver.execute_script("""
+    var target_index = arguments[0]
+    var col_name = arguments[1]
 
-    window[2].WShtAC_1.SetGridCellText("CHK", target_index, {column_index})
+    window[2].WShtAC_1.SetGridCellText(col_name, target_index, 1)
     window[2].BTN_SELECT_Click()
-  """, target_index)
+  """, target_index, col_name)
 
 def select_visitor_js(driver, visiter):
   try:
