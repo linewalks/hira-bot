@@ -1,6 +1,5 @@
 import datetime
 import time
-import sys
 from httplib2 import Http
  
 from json import dumps
