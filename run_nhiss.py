@@ -44,10 +44,10 @@ if __name__ == "__main__":
   args = parser.parse_args()
   target_day = args.run_until_success
   is_register_am = REGISTER_AM
-  is_seoul = False if args.seoul is None else True 
+  is_seoul = True if args.seoul else False
 
   user_name = CREDENTIAL_NAME
-  region = RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH] if is_seoul else '서울'
+  region = '서울' if is_seoul else RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]
   
   # run until success 모드
   if target_day:
