@@ -31,16 +31,15 @@ def select_target_day_with_index_js(driver, target_index):
     window[2].BTN_SELECT_Click()
   """, target_index)
 
-def select_target_day_with_index_js_in_seoul(driver, target_index, is_register_am):
-  col_name = 'AM_CHK' if is_register_am else 'PM_CHK'
-
+def select_target_day_with_index_js_in_seoul(driver, target_index):
   driver.execute_script("""
     var target_index = arguments[0]
     var col_name = arguments[1]
 
-    window[2].WShtAC_1.SetGridCellText(col_name, target_index, 1)
+    window[2].WShtAC_1.SetGridCellText('AM_CHK', target_index, 1)
+    window[2].WShtAC_1.SetGridCellText('PM_CHK', target_index, 1)
     window[2].BTN_SELECT_Click()
-  """, target_index, col_name)
+  """, target_index)
 
 def select_visitor_js(driver, visiter):
   try:

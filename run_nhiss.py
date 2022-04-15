@@ -3,12 +3,11 @@ from utils.helper import send_message, validate
 from nhiss.configs.nhiss_cfg import (
   RESEARCH_CENTER_XPATH,
   CREDENTIAL_NAME,
-  REGISTER_AM
 )
 
 from nhiss.nhiss_bot import RESEARCH_CENTER_XPATH_MAP
 from nhiss.tasks.register_info import RegisterInfo
-from nhiss.tasks.reservation_mode import convert_target_day, run_on_time, run_until_success
+from nhiss.tasks.reservation_mode import run_on_time, run_until_success
 
 if __name__ == "__main__":
   from argparse import ArgumentParser, RawTextHelpFormatter
@@ -43,7 +42,6 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
   target_day = args.run_until_success
-  is_register_am = REGISTER_AM
   is_seoul = True if args.seoul else False
 
   user_name = CREDENTIAL_NAME
@@ -57,10 +55,9 @@ if __name__ == "__main__":
       send_message(f"{e}")
       exit(1)
 
-    register_info = RegisterInfo(user_name, target_day, region, is_register_am, is_seoul)
+    register_info = RegisterInfo(user_name, target_day, region, is_seoul)
     
-    target_day_msg = convert_target_day(target_day, is_register_am, is_seoul)
-    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day_msg}")
+    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
     run_until_success(register_info, args.headless)
   
   # run on time 모드
@@ -68,6 +65,5 @@ if __name__ == "__main__":
     target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")
     register_info = RegisterInfo(user_name, target_day, region, is_register_am, is_seoul)
 
-    target_day_msg = convert_target_day(target_day, is_register_am, is_seoul)
-    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day_msg}")
+    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day}")
     run_on_time(register_info, args.headless, debug=False)

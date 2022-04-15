@@ -26,7 +26,7 @@ def init_nhiss_bot(headless: bool=False):
 
 
 # 예약 정보 채우기
-def reservation_content_fill(bot, target_day, is_register_am, is_seoul: bool = False, check_date: bool = True):
+def reservation_content_fill(bot, target_day, is_seoul: bool = False, check_date: bool = True):
   try:
     # NHISS 로그인
     bot.login()
@@ -35,7 +35,7 @@ def reservation_content_fill(bot, target_day, is_register_am, is_seoul: bool = F
     bot.selectReservationOptions('seoul' if is_seoul else 'general') 
 
     if check_date: 
-      bot.selectReservationDate(target_day, is_register_am, is_seoul)
+      bot.selectReservationDate(target_day, is_seoul)
     reservation_research_name = bot.getResearchName()
 
     return {
