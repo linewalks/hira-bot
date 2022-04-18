@@ -11,20 +11,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from utils.helper import count_down, send_message
 from nhiss.helper_js import (
   get_target_index_js,
   select_target_day_with_index_js,
+  select_target_day_with_index_js_in_seoul,
   select_visitor_js
-)
-from nhiss.configs.nhiss_cfg import (
-  OS,
-  RESEARCH_NUMBER_XPATH,
-  RESEARCH_CENTER_XPATH,
-  CREDENTIAL_ID,
-  CREDENTIAL_PWD,
-  CREDENTIAL_NAME,
-  RESEARCH_VISITER_LIST
 )
 
 RESEARCH_CENTER_XPATH_MAP = {
@@ -74,17 +65,23 @@ class NhissBot:
       day=day, 
       hour=hour, 
       minute=minute, 
-      second=second)
+      second=second
+    )
+
     print(f'[HiraBot] Target  Time (KST): {target_datetime}')
+
     time_diff = timedelta(hours=9) 
     format = "%a, %d %b %Y %H:%M:%S %Z"
     cur_gmt_time = requests.get('https://nhiss.nhis.or.kr/bd/ay/bdaya001iv.do').headers['Date']
     cur_gmt_time = datetime.strptime(cur_gmt_time, format)
     print(f'[HiraBot] Current Time (GMT): {cur_gmt_time}')
+
     cur_kst_time = cur_gmt_time + time_diff
     print(f'[HiraBot] Current Time (KST): {cur_kst_time}')
+
     delta = target_datetime - cur_kst_time
     time_to_wait_sec = float(delta.total_seconds())
+
     try:
       while time_to_wait_sec > 0:
         print('left time seconds: ', time_to_wait_sec, flush=True)
@@ -145,15 +142,19 @@ class NhissBot:
         self.driver.close() 
     self.driver.switch_to.window(self.driver.window_handles[0])
   
-  def selectReservationOptions(self):
-    self.__go_to_my_service()
-    self.__select_research_number()
-    self.__select_research_center()
-    self.__select_visitor()
+  def selectReservationOptions(self, region):
+    if region == 'seoul':
+      self.__go_to_seoul_register()
+      self.__select_research_number()
+      self.__select_visitor()
+    else:
+      self.__go_to_general_register()
+      self.__select_research_number()
+      self.__select_research_center()
+      self.__select_visitor()
 
-
-  def selectReservationDate(self, target_day = None):
-    return self.__select_reservation_date(target_day)
+  def selectReservationDate(self, target_day, is_seoul):
+    return self.__select_reservation_date(target_day, is_seoul)
 
   # 연구명 가져오기
   def getResearchName(self):
@@ -187,10 +188,15 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "WSF_1_insert_APLY_MGMT_NO_label"))).click()
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_number_xpath))).click()
 
-
-  # MY서비스 - 분석센터이용 페이지로 이동
-  def __go_to_my_service(self):
+  # 예약신청(일반) 메뉴로 이동
+  def __go_to_general_register(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002lv.do')
+    time.sleep(1)
+    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
+
+  # 예약신청(서울) 메뉴로 이동
+  def __go_to_seoul_register(self):
+    self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002Slv.do')
     time.sleep(1)
     WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
 
@@ -200,29 +206,34 @@ class NhissBot:
     WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_center_xpath))).click()
 
   # 예약일자 선택
-  def __select_reservation_date(self, target_day = None):
+  def __select_reservation_date(self, target_day, is_seoul):
     # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
     try:
       WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
 
       # 예약일자 선택창 대기
-      time.sleep(1)
+      time.sleep(1.5)
       self.driver.switch_to.default_content()
 
       if target_day is None:
         # Get target day which is two weeks later than today.
-        #TODO: comment out line below. 
+        # TODO: comment out line below. 
         target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
+      # 예약일자 선택
       target_index = get_target_index_js(self.driver, target_day)
-      time.sleep(0.2)
+      time.sleep(0.5)
       
       if target_index != -1:
-        select_target_day_with_index_js(self.driver, target_index)
+        if is_seoul:
+          select_target_day_with_index_js_in_seoul(self.driver, target_index) 
+        else:
+          select_target_day_with_index_js(self.driver, target_index)
         self.driver.switch_to.frame('cmsView')
         return True
       else:
         raise Exception(f'해당 날짜({target_day})에 맞는 좌석을 선택할 수 없습니다.')
+
     except Exception as err:
       print(err)
       raise Exception('날짜 선택 실패!')
@@ -232,12 +243,12 @@ class NhissBot:
     self.driver.find_element_by_id("ods_WSF_1_insert_BTN_VISTM").click() 
 
     # 방문자 선택창 대기
-    time.sleep(1)
+    time.sleep(2)
     self.driver.switch_to.default_content()
     
     for visiter in self.visiters:
       select_visitor_js(self.driver, visiter)
 
-    time.sleep(0.2)
+    time.sleep(0.5)
     self.driver.execute_script("window[2].BTN_SELECT_Click()")
     self.driver.switch_to.frame('cmsView')
