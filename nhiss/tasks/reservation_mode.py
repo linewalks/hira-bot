@@ -4,9 +4,13 @@ from datetime import timedelta, datetime
 from utils.helper import count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
+from nhiss.tasks.register_info import RegisterInfo
+
+from background.nhiss import celery
+
 
 def run_on_time(info, headless: bool = False, debug: bool = True):
-  register_info = info.getInfo()
+  register_info = RegisterInfo(*info).getInfo()
 
   start_time = time.time()
   today = datetime.now()
@@ -45,12 +49,13 @@ def run_on_time(info, headless: bool = False, debug: bool = True):
     bot.quit()
 
 
-def run_until_success(info, headless: bool = False):
-  register_info = info.getInfo()
+@celery.task
+def run_until_success(info, headless: bool = False, options={}):
+  register_info = RegisterInfo(*info).getInfo()
 
   while True:
-    bot = init_nhiss_bot(headless)
     start_time = time.time()
+    bot = init_nhiss_bot(headless, options)
 
     try: 
       # 1. 예약 신청 내용 입력
@@ -70,5 +75,9 @@ def run_until_success(info, headless: bool = False):
       count_down(5)
     finally:
       check_elapsed_time(start_time)
-      time.sleep(1)
+      time.sleep(0.1)
       bot.quit()
+
+
+def start_delay(info, headless, options):
+  run_until_success.delay(info, headless, options)

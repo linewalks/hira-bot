@@ -55,15 +55,12 @@ if __name__ == "__main__":
       send_message(f"{e}")
       exit(1)
 
-    register_info = RegisterInfo(user_name, target_day, region, is_seoul)
-    
     send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
-    run_until_success(register_info, args.headless)
+    run_until_success([user_name, target_day, region, is_seoul], args.headless)
   
   # run on time 모드
   else:
     target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")
-    register_info = RegisterInfo(user_name, target_day, region, is_register_am, is_seoul)
 
     send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day}")
-    run_on_time(register_info, args.headless, debug=False)
+    run_on_time([user_name, target_day, region, is_seoul], args.headless, debug=False)

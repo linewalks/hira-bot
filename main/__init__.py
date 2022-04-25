@@ -41,6 +41,8 @@ def create_app(file_path=file_path):
 
   with app.app_context():
     # Blueprint
+    from background.nhiss import celery
+    from nhiss.tasks.reservation_mode import run_until_success
     from main.controllers.nhiss import nhiss_bp
 
     blueprints = [

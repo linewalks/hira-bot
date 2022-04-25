@@ -5,3 +5,4 @@ files/configs/nhiss_cfg.py
 hira/config.py
 nhiss/configs/nhiss_cfg.py
 hira_bot.cfg
+*.log
