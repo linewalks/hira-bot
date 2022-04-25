@@ -30,8 +30,8 @@ def send_message(msg):
   if not NOTIFICATION_FLAG:
     print(f"[HiraBot][DEBUG] {msg}")
     return  
-  # url = "https://chat.googleapis.com/v1/spaces/AAAAKAqJ-Ak/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=PSxTjn9nAy37ZYdANBKA2ErTXZCrpEvJcgikzYFQ0JQ%3D" # 건보 사이트 방문
-  url = "https://chat.googleapis.com/v1/spaces/AAAAF4dc2k4/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=9TUu6SkDaU99NTXLn-Shnzgh_NvwD0OAgrSZAMBvuV4%3D"
+  url = "https://chat.googleapis.com/v1/spaces/AAAAKAqJ-Ak/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=PSxTjn9nAy37ZYdANBKA2ErTXZCrpEvJcgikzYFQ0JQ%3D" # 건보 사이트 방문
+
   bot_message = {'text' : msg}
 
   message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
