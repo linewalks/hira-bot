@@ -22,3 +22,7 @@ class ReservationNhissOnTime(Schema):
 
 class ReservationNhissUntilSuccess(ReservationNhissOnTime):
   target_day = fields.Str(required=True)
+
+
+class ReservationNhissCancel(Schema):
+  task_id = fields.Str(required=True)

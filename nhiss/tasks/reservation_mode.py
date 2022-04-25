@@ -9,9 +9,13 @@ from nhiss.tasks.register_info import RegisterInfo
 from background.nhiss import celery
 
 
-@celery.task
-def run_on_time(info, headless: bool = False, debug: bool = True,  options={}):
+@celery.task(bind=True)
+def run_on_time(self, info, headless: bool = False, debug: bool = True,  options={}):
   register_info = RegisterInfo(*info).getInfo()
+
+  task_message = f"[Bot] {register_info['user_name']}님 {register_info['region']} 지역 task_id: {self.request.id}입니다. target day: {register_info['target_day']}"
+  send_message(task_message)
+  print(task_message)
 
   start_time = time.time()
   today = datetime.now()
@@ -50,9 +54,13 @@ def run_on_time(info, headless: bool = False, debug: bool = True,  options={}):
     bot.quit()
 
 
-@celery.task
-def run_until_success(info, headless: bool = False, options={}):
+@celery.task(bind=True)
+def run_until_success(self, info, headless: bool = False, options={}):
   register_info = RegisterInfo(*info).getInfo()
+  
+  task_message = f"[Bot] {register_info['user_name']}님 {register_info['region']} 지역 task_id: {self.request.id}입니다. target day: {register_info['target_day']}"
+  send_message(task_message)
+  print(task_message)
 
   while True:
     start_time = time.time()
