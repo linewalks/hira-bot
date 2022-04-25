@@ -36,8 +36,6 @@ def send_message(msg):
 
   message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
 
-  http_obj = Http()
-
   response = requests.post(url, headers=message_headers, json=bot_message)
 
 

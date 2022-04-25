@@ -9,14 +9,15 @@ from nhiss.tasks.register_info import RegisterInfo
 from background.nhiss import celery
 
 
-def run_on_time(info, headless: bool = False, debug: bool = True):
+@celery.task
+def run_on_time(info, headless: bool = False, debug: bool = True,  options={}):
   register_info = RegisterInfo(*info).getInfo()
 
   start_time = time.time()
   today = datetime.now()
   next_day = today + timedelta(days = 1)
 
-  bot = init_nhiss_bot(headless)
+  bot = init_nhiss_bot(headless, options)
 
   try:
     if not debug:
@@ -45,7 +46,7 @@ def run_on_time(info, headless: bool = False, debug: bool = True):
     send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']))
   finally:
     check_elapsed_time(start_time)
-    time.sleep(10)
+    time.sleep(1)
     bot.quit()
 
 
@@ -77,7 +78,3 @@ def run_until_success(info, headless: bool = False, options={}):
       check_elapsed_time(start_time)
       time.sleep(0.1)
       bot.quit()
-
-
-def start_delay(info, headless, options):
-  run_until_success.delay(info, headless, options)
