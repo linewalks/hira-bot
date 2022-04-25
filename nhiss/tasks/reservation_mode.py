@@ -84,5 +84,5 @@ def run_until_success(self, info, headless: bool = False, options={}):
       count_down(5)
     finally:
       check_elapsed_time(start_time)
-      time.sleep(0.1)
+      time.sleep(1)
       bot.quit()
