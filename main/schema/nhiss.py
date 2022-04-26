@@ -18,7 +18,7 @@ class ReservationNhissOnTime(Schema):
       description="NHISS 로그인 패스워드"
   )
   is_seoul = fields.Bool(
-      required=True,
+      load_default=False,
       description="PC예약신청(서울) 유무"
   )
   research_number = fields.Int(
