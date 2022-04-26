@@ -29,8 +29,9 @@ def make_reservation_nhiss_until_success(name, id, password, is_seoul, research_
     try:
       validate(target_day)
     except ValueError as e:
-      send_message("옳바른 형식의 target_day를 넣어 주세요. ex)xxxx-xx-xx")
-      return {"message": "옳바른 형식의 target_day를 넣어 주세요 ex)xxxx-xx-xx"}, 400
+      message = "올바른 형식의 target_day를 넣어 주세요 ex)xxxx-xx-xx"
+      send_message(message)
+      return {"message": message}, 400
 
   research_number_xpath = get_research_number_xpath(research_number)
 
@@ -40,7 +41,7 @@ def make_reservation_nhiss_until_success(name, id, password, is_seoul, research_
   send_message(f"[Bot] {name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
 
   run_until_success.delay(
-      info=[name, target_day, region, False],
+      info=[name, target_day, region, is_seoul],
       headless=True,
       options={
           "name": name,
@@ -75,7 +76,7 @@ def make_reservation_nhiss_on_time(name, id, password, is_seoul, research_number
 
   run_on_time.apply_async(
       kwargs={
-          "info": [name, target_day, region, False],
+          "info": [name, target_day, region, is_seoul],
           "headless": True,
           "debug": False,
           "options": {
