@@ -4,15 +4,24 @@ from datetime import timedelta, datetime
 from utils.helper import count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
+from nhiss.tasks.register_info import RegisterInfo
 
-def run_on_time(info, headless: bool = False, debug: bool = True):
-  register_info = info.getInfo()
+from background.nhiss import celery
+
+
+@celery.task(bind=True)
+def run_on_time(self, info, headless: bool = False, debug: bool = True,  options={}):
+  register_info = RegisterInfo(*info).getInfo()
+
+  task_message = f"[Bot] {register_info['user_name']}님 {register_info['region']} 지역 task_id: {self.request.id}입니다. target day: {register_info['target_day']}"
+  send_message(task_message)
+  print(task_message)
 
   start_time = time.time()
   today = datetime.now()
   next_day = today + timedelta(days = 1)
 
-  bot = init_nhiss_bot(headless)
+  bot = init_nhiss_bot(headless, options)
 
   try:
     if not debug:
@@ -41,16 +50,21 @@ def run_on_time(info, headless: bool = False, debug: bool = True):
     send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']))
   finally:
     check_elapsed_time(start_time)
-    time.sleep(10)
+    time.sleep(1)
     bot.quit()
 
 
-def run_until_success(info, headless: bool = False):
-  register_info = info.getInfo()
+@celery.task(bind=True)
+def run_until_success(self, info, headless: bool = False, options={}):
+  register_info = RegisterInfo(*info).getInfo()
+  
+  task_message = f"[Bot] {register_info['user_name']}님 {register_info['region']} 지역 task_id: {self.request.id}입니다. target day: {register_info['target_day']}"
+  send_message(task_message)
+  print(task_message)
 
   while True:
-    bot = init_nhiss_bot(headless)
     start_time = time.time()
+    bot = init_nhiss_bot(headless, options)
 
     try: 
       # 1. 예약 신청 내용 입력

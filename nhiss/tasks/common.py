@@ -12,16 +12,23 @@ from nhiss.nhiss_bot import NhissBot
 
 
 # nhiss 봇 초기화
-def init_nhiss_bot(headless: bool=False):
+def init_nhiss_bot(headless: bool=False, options={}):
+  research_number_xpath = options.get("research_number_xpath", RESEARCH_NUMBER_XPATH)
+  research_center_xpath = options.get("research_center_xpath", RESEARCH_CENTER_XPATH)
+  name = options.get("name", CREDENTIAL_NAME)
+  id = options.get("id", CREDENTIAL_ID)
+  password = options.get("password", CREDENTIAL_PWD)
+  research_visiter_list = options.get("research_visiter_list", RESEARCH_VISITER_LIST)
+
   nhiss_bot = NhissBot(operating_system=OS, headless=headless)
-  nhiss_bot.setResearchNumberXpath(RESEARCH_NUMBER_XPATH)
-  nhiss_bot.setResearchCenterXpath(RESEARCH_CENTER_XPATH)
+  nhiss_bot.setResearchNumberXpath(research_number_xpath)
+  nhiss_bot.setResearchCenterXpath(research_center_xpath)
   nhiss_bot.setCredential(
-    id= CREDENTIAL_ID,
-    pwd= CREDENTIAL_PWD,
-    name=CREDENTIAL_NAME
+      id=id,
+      pwd=password,
+      name=name
   )
-  nhiss_bot.setResearchVisiters(RESEARCH_VISITER_LIST)
+  nhiss_bot.setResearchVisiters(research_visiter_list)
   return nhiss_bot
 
 

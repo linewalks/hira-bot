@@ -1,6 +1,6 @@
 import datetime
 import time
-from httplib2 import Http
+import requests
  
 from json import dumps
 from hira.helper import debug_print
@@ -31,19 +31,12 @@ def send_message(msg):
     print(f"[HiraBot][DEBUG] {msg}")
     return  
   url = "https://chat.googleapis.com/v1/spaces/AAAAKAqJ-Ak/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=PSxTjn9nAy37ZYdANBKA2ErTXZCrpEvJcgikzYFQ0JQ%3D" # 건보 사이트 방문
-  bot_message = {
-      'text' : msg}
+
+  bot_message = {'text' : msg}
 
   message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
 
-  http_obj = Http()
-
-  response = http_obj.request(
-      uri=url,
-      method='POST',
-      headers=message_headers,
-      body=dumps(bot_message),
-  )
+  response = requests.post(url, headers=message_headers, json=bot_message)
 
 
 def validate(date_text):
