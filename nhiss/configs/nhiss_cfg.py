@@ -8,5 +8,5 @@ CREDENTIAL_ID = ''                                   #TODO: NHISS 접속 유저 
 CREDENTIAL_PWD = '!'
 CREDENTIAL_NAME = ''
 RESEARCH_VISITER_LIST = ['']                #TODO: 방문자 이름 등록.
-NOTIFICATION_FLAG = False
+NOTIFICATION_FLAG = True
 

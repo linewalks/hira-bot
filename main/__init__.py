@@ -18,6 +18,13 @@ compress = Compress()
 cors = CORS()
 
 
+def read_config(file_path=file_path):
+  app = Flask(__name__)
+  app.config.from_pyfile(file_path)
+
+  return app
+
+
 def create_app(file_path=file_path):
   app = Flask(__name__)
 
@@ -40,9 +47,9 @@ def create_app(file_path=file_path):
   cors.init_app(app)
 
   with app.app_context():
-    # Blueprint
     from background.nhiss import celery
     from nhiss.tasks.reservation_mode import run_until_success
+    # Blueprint
     from main.controllers.nhiss import nhiss_bp
 
     blueprints = [
