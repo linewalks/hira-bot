@@ -64,19 +64,21 @@ class HiraBot():
       driver.close()
     driver.switch_to.window(driver.window_handles[0])
 
-  def click_alert(self, driver):
+  def click_alert(self, driver, ignore=False):
     try:
       WebDriverWait(driver, 3).until(EC.alert_is_present())
       driver.switch_to.alert.accept()
-    except:
+    except Exception as err:
       # alert이 신청 상황에 따라 발생 할수도 없을 수도 있기 때문에 raise 처리 X
       print("There is no alert")
+      if not ignore:
+        raise err
 
 
   def go_apply_page(self, driver, wait):
     wait.until(EC.element_to_be_clickable((By.ID, "applyBtn")))
     driver.find_element_by_id('applyBtn').click()
-    self.click_alert(driver)
+    self.click_alert(driver, ignore=True)
 
 
   def click_center(self, driver, wait, each_branch):
