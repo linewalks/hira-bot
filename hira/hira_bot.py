@@ -3,9 +3,11 @@ import os
 import time
 import requests
 from datetime import timedelta, datetime
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from hira.helper import debug_print
@@ -23,18 +25,11 @@ format = "%a, %d %b %Y %H:%M:%S %Z"
 
 class HiraBot():
   def init_driver(self):
-    driver_path = os.path.join(os.getcwd(), "files", "driver", OS)
-    chrome_ver = chromedriver_autoinstaller.get_chrome_version().split(".")[0]
-    chromedriver_autoinstaller.install(path=driver_path)
-
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--single-process")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-
+    chrome_options.add_experimental_option("excludeSwitches", ['enable-logging'])
+    chrome_options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(
-        f"{driver_path}/{chrome_ver}/chromedriver",
+        service=Service(ChromeDriverManager().install()),
         chrome_options=chrome_options
     )
     return driver
@@ -116,6 +111,9 @@ class HiraBot():
     self.close_popups(driver)
     # 신청 페이지 이동
     self.go_apply_page(driver, wait)
+
+    # 신청 페이지의 새로 추가된 alert 클릭
+    self.click_alert(driver)
 
     # 지점 선택
     # TODO: 순서에 따라 지점을 선택해가도록 변경
