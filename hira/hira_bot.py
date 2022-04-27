@@ -117,7 +117,7 @@ class HiraBot():
     # 신청 페이지 이동
     self.go_apply_page(driver, wait)
 
-    # 신청 페이지의 새로 추가된 alert 클릭
+    # 기존 이용 신청이 있는 경우에 "이용신청 클릭 시" 신청중으로 되돌아 갑니다. 얼럿이 추가로 발생
     self.click_alert(driver)
 
     # 지점 선택
