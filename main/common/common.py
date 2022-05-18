@@ -28,11 +28,12 @@ def get_research_number_xpath(number):
 
 def get_countdown():
   today = datetime.today()
+  next_day = today + timedelta(days = 1)
   target_datetime = datetime(
-      year=today.year, 
-      month=today.month, 
-      day=today.day, 
-      hour=23, 
+      year=next_day.year, 
+      month=next_day.month, 
+      day=next_day.day, 
+      hour=8, 
       minute=54, 
       second=30
   )
