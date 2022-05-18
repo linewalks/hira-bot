@@ -17,8 +17,15 @@ docs = FlaskApiSpec()
 compress = Compress()
 cors = CORS()
 
+def make_config_file(file_path):
+  if not os.path.isfile(file_path):
+    with open(f"{file_path.strip('.cfg')}.default.cfg", "r") as read_file:
+      with open(file_path, "w") as file:
+        file.write(read_file.read())
+
 
 def read_config(file_path=file_path):
+  make_config_file(file_path)
   app = Flask(__name__)
   app.config.from_pyfile(file_path)
 
@@ -26,6 +33,8 @@ def read_config(file_path=file_path):
 
 
 def create_app(file_path=file_path):
+  make_config_file(file_path)
+
   app = Flask(__name__)
 
   app.config.from_pyfile(file_path)
