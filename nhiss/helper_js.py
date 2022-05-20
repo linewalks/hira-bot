@@ -1,14 +1,17 @@
 from selenium.common.exceptions import JavascriptException, WebDriverException
 from time import sleep
 time_to_wait = 0.5
+
 def get_target_index_js(driver, target_day):
   try:
     return driver.execute_script("""
       var target_day =  arguments[0]
       var row_count = window[2].WShtAC_1.GetRowCount()
       var target_index = -1
+
       for (var i = 0; i < row_count; i++){
         var cur_row_date = window[2].WShtAC_1.GetGridCellText("RSVT_DT", i)  
+
         if (target_day == cur_row_date){
           target_index = i
           break;
@@ -28,11 +31,21 @@ def is_available_click_check(driver, target_index):
 
 def select_target_day_with_index_js(driver, target_index):
   driver.execute_script("""
-    var target_index =  arguments[0]
+    var target_index = arguments[0]
+
     window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
     window[2].BTN_SELECT_Click()
   """, target_index)
 
+def select_target_day_with_index_js_in_seoul(driver, target_index):
+  driver.execute_script("""
+    var target_index = arguments[0]
+    var col_name = arguments[1]
+
+    window[2].WShtAC_1.SetGridCellText('AM_CHK', target_index, 1)
+    window[2].WShtAC_1.SetGridCellText('PM_CHK', target_index, 1)
+    window[2].BTN_SELECT_Click()
+  """, target_index)
 
 def select_visitor_js(driver, visiter):
   try:
@@ -40,6 +53,7 @@ def select_visitor_js(driver, visiter):
       var target_user_name =  arguments[0]
       var row_count = window[2].WShtAC_1.GetRowCount()
       var target_index = -1
+
       for (var i = 0; i < row_count; i++){
         var cur_user_id = window[2].WShtAC_1.GetGridCellText("RSCHR_NM", i)  
         if (target_user_name == cur_user_id){

@@ -1,7 +1,6 @@
 import datetime
 import time
-import sys
-from httplib2 import Http
+import requests
  
 from json import dumps
 from hira.helper import debug_print
@@ -32,19 +31,12 @@ def send_message(msg):
     print(f"[HiraBot][DEBUG] {msg}")
     return  
   url = "https://chat.googleapis.com/v1/spaces/AAAAKAqJ-Ak/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=PSxTjn9nAy37ZYdANBKA2ErTXZCrpEvJcgikzYFQ0JQ%3D" # 건보 사이트 방문
-  bot_message = {
-      'text' : msg}
+
+  bot_message = {'text' : msg}
 
   message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
 
-  http_obj = Http()
-
-  response = http_obj.request(
-      uri=url,
-      method='POST',
-      headers=message_headers,
-      body=dumps(bot_message),
-  )
+  response = requests.post(url, headers=message_headers, json=bot_message)
 
 
 def validate(date_text):
@@ -52,3 +44,10 @@ def validate(date_text):
       datetime.datetime.strptime(date_text, '%Y-%m-%d')
   except ValueError:
       raise ValueError(f"Incorrect data format, should be YYYY-MM-DD. Given date_test: {date_text}")
+
+# 시작 시간부터 경과 시간 체크
+def check_elapsed_time(start_time):
+  current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  end_time = time.time()
+  elapsed = end_time - start_time
+  print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
