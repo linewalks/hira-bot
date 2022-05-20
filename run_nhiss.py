@@ -17,6 +17,19 @@ from nhiss.configs.nhiss_cfg import (
 )
 from nhiss.nhiss_bot import NhissBot, RESEARCH_CENTER_XPATH_MAP
 
+
+
+# nhiss_cfg.py에서 기입하는 정보가 모두 채워졌는지 확인
+def check_all_config_filled_up():
+  if not all((OS,
+  RESEARCH_NUMBER_XPATH,
+  RESEARCH_CENTER_XPATH,
+  CREDENTIAL_ID,
+  CREDENTIAL_PWD,
+  CREDENTIAL_NAME,
+  RESEARCH_VISITER_LIST)):
+    raise Exception('모든 정보를 기입해주세요.')
+
 # 시작 시간부터 경과 시간 체크
 def check_elapsed_time(start_time):
   current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -80,6 +93,10 @@ def reservation_content_fill(bot, target_day, check_date: bool = True):
     }
   except WebDriverException as e:
     raise Exception("예약 정보 입력 실패!")
+    #TODO: 아이디, 비밀번호 오입력 시 run_until_success break 걸기
+    # alert_text = e.alert_text
+    # if '가입자 정보가 없습니다.' or '비밀번호를 확인해주세요' in alert_text:
+    #   raise Exception(alert_text)
   except Exception as err:
     print(err)
     raise err
@@ -89,6 +106,7 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
   today = datetime.now()
   next_day = today + timedelta(days = 1)
 
+  check_all_config_filled_up()
   bot = init_nhiss_bot(headless)
 
   try:
@@ -113,13 +131,14 @@ def run_on_time(target_day, headless: bool = False, debug: bool = True):
       send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 성공하였습니다! target day: {target_day}\n• 연구명: {result['reservation_research_name']}")
   except Exception as err:
     print(err)
-    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패하였습니다! target day: {target_day}")
+    send_message(f"[Bot] {CREDENTIAL_NAME}님 {RESEARCH_CENTER_XPATH_MAP[RESEARCH_CENTER_XPATH]}지역 공단봇 예약 실패했습니다! target day: {target_day}\n 실패 원인: {err}")
   finally:
     check_elapsed_time(start_time)
     time.sleep(10)
     bot.quit()
 
 def run_until_success(target_day, headless: bool = False):
+  check_all_config_filled_up()
   while True:
     bot = init_nhiss_bot(headless)
     start_time = time.time()
@@ -127,7 +146,7 @@ def run_until_success(target_day, headless: bool = False):
     try:
       # 예약 신청 내용 입력
       result = reservation_content_fill(bot, target_day)
-
+      
       if result:
         # 예약 신청 버튼 클릭
         is_reservation_success = click_reservation_button(bot) 
