@@ -9,8 +9,6 @@ from nhiss.nhiss_bot import RESEARCH_CENTER_XPATH_MAP
 from nhiss.tasks.register_info import RegisterInfo
 from nhiss.tasks.reservation_mode import run_on_time, run_until_success
 
-# nhiss_cfg.py에서 기입하는 정보가 모두 채워졌는지 확인
-
 if __name__ == "__main__":
   from argparse import ArgumentParser, RawTextHelpFormatter
   parser = ArgumentParser(

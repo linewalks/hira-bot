@@ -14,6 +14,7 @@ from nhiss.configs.nhiss_cfg import (OS,
 )
 from background.nhiss import celery
 
+# nhiss_cfg.py에서 기입하는 정보가 모두 채워졌는지 확인
 def check_all_config_filled_up():
   if not all((OS,
   RESEARCH_NUMBER_XPATH,

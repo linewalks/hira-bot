@@ -12,6 +12,8 @@ from selenium.common.exceptions import NoAlertPresentException, WebDriverExcepti
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from nhiss.helper_js import (
+  get_popup_message,
+  get_remark_status,
   get_target_index_js,
   is_available_click_check,
   select_target_day_with_index_js,
@@ -172,7 +174,7 @@ class NhissBot:
     try:
       self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
       WebDriverWait(self.driver, 3).until(EC.alert_is_present())  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
-      alert_text = self.driver.switch_to.alert.text     
+      alert_text = self.driver.switch_to.alert.text
       return True if "예약이 완료" in alert_text else False
     except Exception as e:
       popup_text= get_popup_message(self.driver)
