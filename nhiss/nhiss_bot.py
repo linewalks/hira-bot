@@ -13,9 +13,13 @@ from selenium.webdriver.common.by import By
 from utils.helper import count_down, send_message
 from nhiss.helper_js import (
   get_target_index_js,
+  is_available_click_check,
   select_target_day_with_index_js,
-  select_visitor_js
+  select_visitor_js,
+  get_remark_status,
+  get_popup_message,
 )
+
 from nhiss.configs.nhiss_cfg import (
   OS,
   RESEARCH_NUMBER_XPATH,
@@ -161,11 +165,13 @@ class NhissBot:
     try:
       self.driver.find_element_by_xpath('//*[@id="ods_WSF_1_insert_BTN_APPLY"]').click()
       WebDriverWait(self.driver, 3).until(EC.alert_is_present())  # alert 창이 뜰 때까지 기다려야 함(2022-03-27 성공 시에 뜸)
-      alert = self.driver.switch_to.alert
-      return True if "예약이 완료" in alert.text else False
+      alert_text = self.driver.switch_to.alert.text     
+      return True if "예약이 완료" in alert_text else False
     except Exception as e:
-      print(e)
-      raise Exception("연구 신청 Error")
+      popup_text= get_popup_message(self.driver)
+      if popup_text:
+          raise Exception(f'연구 신청 Error: *팝업 메시지* {popup_text}')
+      raise Exception(f'연구 신청 Error: {e}')
 
   def refresh(self):
     self.driver.refresh()
@@ -205,18 +211,25 @@ class NhissBot:
         #TODO: comment out line below. 
         target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
+      time.sleep(0.2) # target_index 받아오는 시간 대기
       target_index = get_target_index_js(self.driver, target_day)
-      time.sleep(0.2)
       
-      if target_index != -1:
-        select_target_day_with_index_js(self.driver, target_index)
-        self.driver.switch_to.frame('cmsView')
-        return True
-      else:
+      if target_index == -1:
         raise Exception(f'해당 날짜({target_day})에 맞는 좌석을 선택할 수 없습니다.')
+      else:
+        text = get_remark_status(self.driver, target_index)
+        if text == '예약불가' or text == '예약완료':
+          raise Exception(f'해당 날짜({target_day})는 *{text}* 상태입니다')
+        else:
+          if is_available_click_check(self.driver, target_index):
+            select_target_day_with_index_js(self.driver, target_index)
+            self.driver.switch_to.frame('cmsView')
+          else:
+            # 선택 일자 클릭 불가능 시 나오는 팝업의 text는 find_by_element로 찾을 수 없음.
+            # script로 msg를 삽입하는 형태이기 때문일 것으로 추정.
+            raise Exception('센터 예약은 1주 최대 3일 예약가능합니다.')
     except Exception as err:
-      print(err)
-      raise Exception('날짜 선택 실패!')
+      raise Exception(f'{err}')
 
   # 방문객 선택
   def __select_visitor(self):
