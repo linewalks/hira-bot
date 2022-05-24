@@ -23,6 +23,12 @@ def get_target_index_js(driver, target_day):
     sleep(time_to_wait)
     return get_target_index_js(driver, target_day)
 
+def is_available_click_check(driver, target_index):
+  return driver.execute_script("""
+    var target_index =  arguments[0]
+    return window[2].CHK_Validation(target_index, 1)
+  """, target_index)
+
 def select_target_day_with_index_js(driver, target_index):
   driver.execute_script("""
     var target_index = arguments[0]
@@ -63,3 +69,18 @@ def select_visitor_js(driver, visiter):
   except:
     sleep(time_to_wait)
     return select_visitor_js(driver, visiter)
+
+def get_popup_message(driver):
+    popup = driver.find_element_by_id('popup_message')
+    return popup.text
+
+def get_alert_text(driver):
+  result = driver.switch_to_alert()
+  return result.text
+
+def get_remark_status(driver, target_index):
+    return driver.execute_script("""
+      var target_index =  arguments[0]
+      var text = window[2].WShtAC_1.GetGridCellText("REMARK", target_index)
+      return text
+    """, target_index)
