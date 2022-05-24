@@ -4,12 +4,10 @@ from background.nhiss import celery
 from nhiss.configs.nhiss_cfg import (
   RESEARCH_CENTER_XPATH,
   CREDENTIAL_NAME,
-)
-
+)   
 from nhiss.nhiss_bot import RESEARCH_CENTER_XPATH_MAP
 from nhiss.tasks.register_info import RegisterInfo
 from nhiss.tasks.reservation_mode import run_on_time, run_until_success
-
 
 if __name__ == "__main__":
   from argparse import ArgumentParser, RawTextHelpFormatter

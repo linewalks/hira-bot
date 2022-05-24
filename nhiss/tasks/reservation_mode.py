@@ -1,13 +1,29 @@
 import time
 from datetime import timedelta, datetime
-
 from utils.helper import count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
 from nhiss.tasks.register_info import RegisterInfo
-
+from nhiss.configs.nhiss_cfg import (OS,
+  RESEARCH_NUMBER_XPATH,
+  RESEARCH_CENTER_XPATH,
+  CREDENTIAL_ID,
+  CREDENTIAL_PWD,
+  CREDENTIAL_NAME,
+  RESEARCH_VISITER_LIST
+)
 from background.nhiss import celery
 
+# nhiss_cfg.py에서 기입하는 정보가 모두 채워졌는지 확인
+def check_all_config_filled_up():
+  if not all((OS,
+  RESEARCH_NUMBER_XPATH,
+  RESEARCH_CENTER_XPATH,
+  CREDENTIAL_ID,
+  CREDENTIAL_PWD,
+  CREDENTIAL_NAME,
+  RESEARCH_VISITER_LIST)):
+    raise Exception('모든 정보를 기입해주세요.')
 
 @celery.task(bind=True)
 def run_on_time(self, info, headless: bool = False, debug: bool = True,  options={}):
@@ -21,6 +37,7 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
   today = datetime.now()
   next_day = today + timedelta(days = 1)
 
+  check_all_config_filled_up()
   bot = init_nhiss_bot(headless, options)
 
   try:
@@ -39,15 +56,16 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
     bot.selectReservationDate(register_info['target_day'], register_info['is_seoul'])
     
     # 3. 예약 신청
-    is_reservation_success = click_reservation_button(bot, debug) 
-    # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
-    
+    is_reservation_success = click_reservation_button(bot, debug)     
+    # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)  <- 해결 확인 필요
+
+        
     if is_reservation_success:
       send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
 
   except Exception as err:
     print(err)
-    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']))
+    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']), err)
   finally:
     check_elapsed_time(start_time)
     time.sleep(1)
@@ -57,7 +75,8 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
 @celery.task(bind=True)
 def run_until_success(self, info, headless: bool = False, options={}):
   register_info = RegisterInfo(*info).getInfo()
-  
+  check_all_config_filled_up()
+
   task_message = f"[Bot] {register_info['user_name']}님 {register_info['region']} 지역 task_id: {self.request.id}입니다. target day: {register_info['target_day']}"
   send_message(task_message)
   print(task_message)
@@ -75,7 +94,7 @@ def run_until_success(self, info, headless: bool = False, options={}):
         is_reservation_success = click_reservation_button(bot) 
 
         if is_reservation_success:
-          # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력)
+          # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력) <- 해결 확인 필요
           send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
           break
 
