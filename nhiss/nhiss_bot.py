@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from nhiss.tasks.error import LoginError
 from nhiss.helper_js import (
   get_popup_message,
   get_remark_status,
@@ -133,17 +134,19 @@ class NhissBot:
       action = ActionChains(self.driver)
       action.key_down(Keys.RETURN).perform()
 
-    except WebDriverException as err:
-      print(err)
-      raise Exception('아이디, 패스워드 자동 입력 에러')
-    
+      self.driver.get('https://nhiss.nhis.or.kr/bd/ay/bdaya001iv.do')
+
     # 로그인 후 팝업 닫기
-    main = self.driver.window_handles 
-    for handle in main: 
-      if handle != main[0]: 
-        self.driver.switch_to.window(handle) 
-        self.driver.close() 
-    self.driver.switch_to.window(self.driver.window_handles[0])
+      main = self.driver.window_handles 
+      for handle in main: 
+        if handle != main[0]: 
+          self.driver.switch_to.window(handle) 
+          self.driver.close() 
+      self.driver.switch_to.window(self.driver.window_handles[0])
+
+    except WebDriverException as err:
+      raise LoginError('아이디, 패스워드 자동 입력 에러')
+
   
   def selectReservationOptions(self, region):
     if region == 'seoul':

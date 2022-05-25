@@ -1,9 +1,11 @@
 import time
 from datetime import timedelta, datetime
+from nhiss.tasks.error import LoginError
 from utils.helper import count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
 from nhiss.tasks.register_info import RegisterInfo
+from nhiss.tasks.error import LoginError
 from nhiss.configs.nhiss_cfg import (OS,
   RESEARCH_NUMBER_XPATH,
   RESEARCH_CENTER_XPATH,
@@ -62,10 +64,10 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
         
     if is_reservation_success:
       send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
-
+  
   except Exception as err:
     print(err)
-    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']), err)
+    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
   finally:
     check_elapsed_time(start_time)
     time.sleep(1)
@@ -98,9 +100,14 @@ def run_until_success(self, info, headless: bool = False, options={}):
           send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
           break
 
+    except LoginError as err:
+      send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
+      break
+
     except Exception as err:
       print(err)
       count_down(5)
+
     finally:
       check_elapsed_time(start_time)
       time.sleep(1)
