@@ -9,7 +9,7 @@ from nhiss.configs.nhiss_cfg import (
   RESEARCH_VISITER_LIST,
 )
 from nhiss.nhiss_bot import NhissBot
-from nhiss.tasks.error import LoginError, NotQualifiedChooseSeoul
+from nhiss.tasks.error import ForceQuit
 
 
 # nhiss 봇 초기화
@@ -49,18 +49,16 @@ def reservation_content_fill(bot, target_day, is_seoul: bool = False, check_date
     return {
       "reservation_research_name": reservation_research_name,
     }
+
+  except ForceQuit as err:
+    raise ForceQuit(err)
+  
   except WebDriverException:
     #TODO: 아이디, 비밀번호 오입력 시 run_until_success break 걸기
     # alert_text = e.alert_text
     # if '가입자 정보가 없습니다.' or '비밀번호를 확인해주세요' in alert_text:
     #   raise Exception(alert_text)
     raise Exception("예약 정보 입력 실패!")
-
-  except NotQualifiedChooseSeoul as err:
-    raise NotQualifiedChooseSeoul(err)
-  
-  except LoginError as err:
-    raise LoginError(err)
 
   except Exception as err:
     print(err)

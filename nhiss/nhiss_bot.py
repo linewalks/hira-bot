@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from nhiss.tasks.error import LoginError, NotQualifiedChooseSeoul
+from nhiss.tasks.error import ForceQuit
 from nhiss.helper_js import (
   get_popup_message,
   get_remark_status,
@@ -145,19 +145,22 @@ class NhissBot:
       self.driver.switch_to.window(self.driver.window_handles[0])
 
     except WebDriverException as err:
-      raise LoginError('아이디, 패스워드 자동 입력 에러')
+      raise ForceQuit('아이디, 패스워드 자동 입력 에러')
 
   
   def selectReservationOptions(self, region):
-    if region == 'seoul':
-      self.__go_to_seoul_register()
-      self.__select_research_number()
-      self.__select_visitor()
-    else:
-      self.__go_to_general_register()
-      self.__select_research_number()
-      self.__select_research_center()
-      self.__select_visitor()
+    try:
+      if region == 'seoul':
+        self.__go_to_seoul_register()
+        self.__select_research_number()
+        self.__select_visitor()
+      else:
+        self.__go_to_general_register()
+        self.__select_research_number()
+        self.__select_research_center()
+        self.__select_visitor()
+    except ForceQuit as err:
+      raise ForceQuit(err)
 
   def selectReservationDate(self, target_day, is_seoul):
     return self.__select_reservation_date(target_day, is_seoul)
@@ -193,8 +196,11 @@ class NhissBot:
 
   # 연구과제관리번호 선택
   def __select_research_number(self):
-    WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "WSF_1_insert_APLY_MGMT_NO_label"))).click()
-    WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_number_xpath))).click()
+    try:
+      WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "WSF_1_insert_APLY_MGMT_NO_label"))).click()
+      WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.XPATH, self.research_number_xpath))).click()
+    except:
+      raise ForceQuit('해당 연구과제가 존재하지 않습니다.')
 
   # 예약신청(일반) 메뉴로 이동
   def __go_to_general_register(self):
@@ -210,7 +216,7 @@ class NhissBot:
     if li_length_of_pc_tab == 3:
       WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
     else:
-      raise NotQualifiedChooseSeoul('서울이 선택지에 없습니다.')
+      raise ForceQuit('서울이 선택지에 없습니다.')
 
   # 센터구분
   def __select_research_center(self):

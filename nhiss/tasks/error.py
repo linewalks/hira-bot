@@ -1,5 +1,2 @@
-class LoginError(Exception):
-  pass
-
-class NotQualifiedChooseSeoul(Exception):
+class ForceQuit(Exception):
   pass
