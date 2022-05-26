@@ -8,6 +8,7 @@ from nhiss.configs.nhiss_cfg import (
 from nhiss.nhiss_bot import RESEARCH_CENTER_XPATH_MAP
 from nhiss.tasks.register_info import RegisterInfo
 from nhiss.tasks.reservation_mode import run_on_time, run_until_success
+from utils.message import failure_msg
 
 if __name__ == "__main__":
   from argparse import ArgumentParser, RawTextHelpFormatter
@@ -49,15 +50,18 @@ if __name__ == "__main__":
 
   # run until success 모드
   if target_day:
-    try:
-      validate(target_day)
-    except ValueError as e:
-      send_message(f"{e}")
-      exit(1)
+    if (datetime.now() > datetime.strptime(target_day, "%Y-%m-%d")):
+      send_message(failure_msg(user_name, region, target_day, 'target_day가 오늘 날짜보다 앞에 있습니다.'))
+    else:
+      try:
+        validate(target_day)
+      except ValueError as e:
+        send_message(f"{e}")
+        exit(1)
 
-    send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
-    run_until_success([user_name, target_day, region, is_seoul], args.headless)
-  
+      send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
+      run_until_success([user_name, target_day, region, is_seoul], args.headless)
+    
   # run on time 모드
   else:
     target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")

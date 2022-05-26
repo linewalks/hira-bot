@@ -88,6 +88,10 @@ def run_until_success(self, info, headless: bool = False, options={}):
     bot = init_nhiss_bot(headless, options)
 
     try: 
+      if (datetime.now() > datetime.strptime(register_info['target_day'], "%Y-%m-%d")):
+        send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], 'target_day가 오늘 날짜보다 앞에 있습니다.'))
+        break
+
       # 1. 예약 신청 내용 입력
       result = reservation_content_fill(bot, register_info['target_day'], register_info['is_seoul'], check_date = True)
 
