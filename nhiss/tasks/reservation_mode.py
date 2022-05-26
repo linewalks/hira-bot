@@ -5,7 +5,7 @@ from utils.helper import count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
 from nhiss.tasks.register_info import RegisterInfo
-from nhiss.tasks.error import LoginError
+from nhiss.tasks.error import LoginError, NotQualifiedChooseSeoul
 from nhiss.configs.nhiss_cfg import (OS,
   RESEARCH_NUMBER_XPATH,
   RESEARCH_CENTER_XPATH,
@@ -103,6 +103,10 @@ def run_until_success(self, info, headless: bool = False, options={}):
           # TODO: 연구 과제 중복 신청 예외처리 필요 (현재 중복되어도 성공 출력) <- 해결 확인 필요
           send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
           break
+    
+    except NotQualifiedChooseSeoul as err:
+      send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
+      break
 
     except LoginError as err:
       send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))

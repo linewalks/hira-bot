@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from nhiss.tasks.error import LoginError
+from nhiss.tasks.error import LoginError, NotQualifiedChooseSeoul
 from nhiss.helper_js import (
   get_popup_message,
   get_remark_status,
@@ -206,7 +206,11 @@ class NhissBot:
   def __go_to_seoul_register(self):
     self.driver.get('https://nhiss.nhis.or.kr/bd/af/bdafa002Slv.do')
     time.sleep(1)
-    WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
+    li_length_of_pc_tab = len(self.driver.find_elements_by_xpath("//ul[@id='PC_tab1']/li"))
+    if li_length_of_pc_tab == 3:
+      WebDriverWait(self.driver, 3).until(EC.frame_to_be_available_and_switch_to_it((By.ID, "cmsView")))
+    else:
+      raise NotQualifiedChooseSeoul('서울이 선택지에 없습니다.')
 
   # 센터구분
   def __select_research_center(self):
