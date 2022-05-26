@@ -64,7 +64,7 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
         
     if is_reservation_success:
       send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
-  
+
   except Exception as err:
     print(err)
     send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
