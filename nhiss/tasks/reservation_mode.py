@@ -34,8 +34,14 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
   print(task_message)
 
   start_time = time.time()
+
   today = datetime.now()
-  next_day = today + timedelta(days = 1)
+  run_date = datetime(today.year, today.month, today.day, 9, 0, 0) # 대기 해제(실행 시작) 시간
+  
+  # 오늘 실행 불가 시, 내일 대기 해제
+  if (today - run_date).total_seconds() >= 0: 
+    next_day = today + timedelta(days = 1)
+    run_date = datetime(next_day.year, next_day.month, next_day.day, 9, 0, 0)
 
   check_all_config_filled_up()
   bot = init_nhiss_bot(headless, options)
@@ -43,14 +49,14 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
   try:
     if not debug:
       # TODO: Set date and time to login
-      bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 8, 55, 0)
+      bot.wait_until_kst(run_date.year, run_date.month, run_date.day, 8, 55, 0)
 
     # 1. 예약 신청 내용 입력 (날짜 선택 x)
     result = reservation_content_fill(bot, register_info['target_day'], register_info['is_seoul'], check_date = False)
 
     if not debug:
       # TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-      bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 9, 0, 0)
+      bot.wait_until_kst(run_date.year, run_date.month, run_date.day, 9, 0, 0)
 
     # 2. 갱신된 날짜 테이블 내에서 선택
     bot.selectReservationDate(register_info['target_day'], register_info['is_seoul'])
