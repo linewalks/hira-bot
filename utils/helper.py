@@ -12,11 +12,11 @@ from nhiss.configs.nhiss_cfg import (
 def get_seconds_pretty_string(seconds):
   return str(datetime.timedelta(seconds=seconds))
 
-# run_on_time 모드 내 예약 대기 해제 시간
+# run_on_time 모드 내 예약 실행 시간
 def get_run_on_time_work_date():
   today = datetime.now()
 
-  # 지금이 예약 시간 이전이면, 오늘 기준 예약 대기 해제
+  # 지금이 예약 시간 이전이면, 오늘 기준 예약 실행
   work_date = datetime(
     today.year, 
     today.month, 
@@ -26,9 +26,9 @@ def get_run_on_time_work_date():
     NHISS_RESERVATION_TIME['second']
   )
 
-  # 지금이 예약 시간 이후라면, 내일 기준 예약 대기 해제
-  if (today - work_date).total_seconds() >= 0: 
-    next_day = today + timedelta(days = 1)
+  # 지금이 예약 시간 이후라면, 내일 기준 예약 실행
+  if today >= work_date: 
+    next_day = today + timedelta(days=1)
     work_date = datetime(
       next_day.year, 
       next_day.month, 
@@ -40,11 +40,11 @@ def get_run_on_time_work_date():
   
   return work_date
 
-# 예약 기준 시간 2주 뒤 예약
+# 예약 희망 날짜 - 예약 실행 일자 기준 2주 뒤
 def get_run_on_time_target_day():
   work_date = get_run_on_time_work_date()
 
-  return work_date + timedelta(weeks = 2) 
+  return work_date + timedelta(weeks=2) 
 
 def count_down(time_to_wait_seconds):
   if time_to_wait_seconds <= 0:
