@@ -56,7 +56,7 @@ if __name__ == "__main__":
       try:
         validate(target_day)
       except ValueError as e:
-        send_message(f"{e}")
+        send_message(failure_msg(user_name, region, target_day, "올바른 형식의 target_day를 넣어 주세요 ex)xxxx-xx-xx"))
         exit(1)
 
       send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_until_success 모드로 시작합니다. target day: {target_day}")
