@@ -1,5 +1,4 @@
-from datetime import timedelta, datetime
-from utils.helper import send_message, validate
+from utils.helper import get_run_on_time_target_day, send_message, validate
 from background.nhiss import celery
 from nhiss.configs.nhiss_cfg import (
   RESEARCH_CENTER_XPATH,
@@ -64,7 +63,7 @@ if __name__ == "__main__":
 
   # run on time 모드
   else:
-    target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")
+    target_day = get_run_on_time_target_day().strftime("%Y-%m-%d")
 
     send_message(f"[Bot] {user_name}님 {region} 지역 공단봇 run_on_time 모드로 시작합니다. target day: {target_day}")
     run_on_time([user_name, target_day, region, is_seoul], args.headless, debug=False)

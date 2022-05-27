@@ -227,16 +227,15 @@ class NhissBot:
   def __select_reservation_date(self, target_day, is_seoul):
     # TODO: 에러 처리 구체화 (중복 신청 or 1주일에 3일만 신청 가능 조건)
     try:
+      if target_day is None:
+        raise Exception('예약 희망 날짜를 입력하지 않았습니다.')
+
       WebDriverWait(self.driver, 3).until(EC.element_to_be_clickable((By.ID, "ods_WSF_1_insert_BTN_DT"))).click()
 
       # 예약일자 선택창 대기
       time.sleep(1.5)
       self.driver.switch_to.default_content()
 
-      if target_day is None:
-        # Get target day which is two weeks later than today.
-        # TODO: comment out line below. 
-        target_day = (datetime.now() + timedelta(weeks=2)).strftime("%Y-%m-%d")
 
       time.sleep(0.3) # target_index 받아오는 시간 대기
       target_index = get_target_index_js(self.driver, target_day)
