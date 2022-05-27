@@ -1,6 +1,11 @@
 import requests
 from datetime import datetime, timedelta
 
+NHISS_RESERVATION_TIME = {
+  'hour': 9,
+  'minute': 0,
+  'second': 0
+}
 
 region_list = [
     "원주 본부",
@@ -28,7 +33,7 @@ def get_research_number_xpath(number):
 
 def get_countdown():
   today = datetime.today()
-  next_day = today + timedelta(days = 1)
+  next_day = today + timedelta(days=1)
   target_datetime = datetime(
       year=next_day.year, 
       month=next_day.month, 
