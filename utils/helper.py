@@ -26,7 +26,7 @@ def get_run_on_time_work_date():
     NHISS_RESERVATION_TIME['second']
   )
 
-  # 지금이 예약 시간 이후라면, 예약 대기가 풀리는 내일 기준 2주 뒤 예약
+  # 지금이 예약 시간 이후라면, 내일 기준 예약 대기 해제
   if (today - work_date).total_seconds() >= 0: 
     next_day = today + timedelta(days = 1)
     work_date = datetime(
