@@ -1,7 +1,7 @@
-import datetime
 import time
 import requests
- 
+
+from datetime import timedelta, datetime
 from json import dumps
 from hira.helper import debug_print
 from nhiss.configs.nhiss_cfg import (
@@ -10,6 +10,19 @@ from nhiss.configs.nhiss_cfg import (
 
 def get_seconds_pretty_string(seconds):
   return str(datetime.timedelta(seconds=seconds))
+
+def get_run_on_time_target_day():
+  today = datetime.now()
+  target_time = datetime(today.year, today.month, today.day, 9, 0, 0)
+
+  # 오늘 오전 9시 이전 : 예약 대기가 풀리는 오늘 기준 2주 뒤 예약
+  if (today - target_time).total_seconds() < 0: 
+    return today + timedelta(weeks = 2) 
+
+  # 오늘 오전 9시 이후 : 예약 대기가 풀리는 내일 기준 2주 뒤 예약
+  else:
+    next_day = today + timedelta(days = 1)
+    return next_day + timedelta(weeks = 2)
 
 
 def count_down(time_to_wait_seconds):
