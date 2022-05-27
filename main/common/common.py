@@ -1,6 +1,11 @@
 import requests
 from datetime import datetime, timedelta
 
+NHISS_RESERVATION_TIME = {
+  'hour': 9,
+  'minute': 0,
+  'second': 0
+}
 
 region_list = [
     "원주 본부",

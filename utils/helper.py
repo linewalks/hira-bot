@@ -4,6 +4,7 @@ import requests
 from datetime import timedelta, datetime
 from json import dumps
 from hira.helper import debug_print
+from main.common.common import NHISS_RESERVATION_TIME
 from nhiss.configs.nhiss_cfg import (
     NOTIFICATION_FLAG
 )
@@ -11,19 +12,39 @@ from nhiss.configs.nhiss_cfg import (
 def get_seconds_pretty_string(seconds):
   return str(datetime.timedelta(seconds=seconds))
 
-def get_run_on_time_target_day():
+# run_on_time 모드 내 예약 대기 해제 시간
+def get_run_on_time_work_date():
   today = datetime.now()
-  target_time = datetime(today.year, today.month, today.day, 9, 0, 0)
 
-  # 오늘 오전 9시 이전 : 예약 대기가 풀리는 오늘 기준 2주 뒤 예약
-  if (today - target_time).total_seconds() < 0: 
-    return today + timedelta(weeks = 2) 
+  # 지금이 예약 시간 이전이면, 오늘 기준 예약 대기 해제
+  work_date = datetime(
+    today.year, 
+    today.month, 
+    today.day, 
+    NHISS_RESERVATION_TIME['hour'], 
+    NHISS_RESERVATION_TIME['minute'], 
+    NHISS_RESERVATION_TIME['second']
+  )
 
-  # 오늘 오전 9시 이후 : 예약 대기가 풀리는 내일 기준 2주 뒤 예약
-  else:
+  # 지금이 예약 시간 이후라면, 예약 대기가 풀리는 내일 기준 2주 뒤 예약
+  if (today - work_date).total_seconds() >= 0: 
     next_day = today + timedelta(days = 1)
-    return next_day + timedelta(weeks = 2)
+    work_date = datetime(
+      next_day.year, 
+      next_day.month, 
+      next_day.day, 
+      NHISS_RESERVATION_TIME['hour'], 
+      NHISS_RESERVATION_TIME['minute'], 
+      NHISS_RESERVATION_TIME['second']
+    )
+  
+  return work_date
 
+# 예약 기준 시간 2주 뒤 예약
+def get_run_on_time_target_day():
+  work_date = get_run_on_time_work_date()
+
+  return work_date + timedelta(weeks = 2) 
 
 def count_down(time_to_wait_seconds):
   if time_to_wait_seconds <= 0:
