@@ -1,5 +1,7 @@
-from selenium.common.exceptions import JavascriptException, WebDriverException
 from time import sleep
+from selenium.common.exceptions import JavascriptException, WebDriverException
+from nhiss.tasks.error import ForceQuit
+
 time_to_wait = 0.5
 
 def get_target_index_js(driver, target_day):
@@ -64,11 +66,12 @@ def select_visitor_js(driver, visiter):
 
       if (target_index != -1){
         window[2].WShtAC_1.SetGridCellText("CHK", target_index, 1)
+      } else {
+        throw new Error()
       }
     """, visiter)
   except:
-    sleep(time_to_wait)
-    return select_visitor_js(driver, visiter)
+    raise ForceQuit('해당 방문자 없음')
 
 def get_popup_message(driver):
     popup = driver.find_element_by_id('popup_message')
