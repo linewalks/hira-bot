@@ -15,11 +15,14 @@ branch_list = [
 
 # YYYYMMDD
 priority_list = [
-  ('20220211', '20220212'),
+  ('20220620', '20220621'),
+  ('20220621', '20220622'),
+  ('20220622', '20220623'),
+  ('20220623', '20220624')
 ]
 
 OS = "windows" # macos, linux, windows
-TARGET_DATE = "2022-02-10 14:29:00" # Example Data Format: 2021-12-29 19:01:00
+TARGET_DATE = "" # Example Data Format: 2021-12-29 19:01:00 or now : 즉시 실행 (only run_one_time)
 ### 로그인 정보
 LOGIN_ID = ""
-LOGIN_PASSWORD = ""
+LOGIN_PASSWORD = "!"
