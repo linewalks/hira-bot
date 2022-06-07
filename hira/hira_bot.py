@@ -39,6 +39,8 @@ class HiraBot():
 
 
   def get_time_delta(self):
+    if TARGET_DATE == "now":
+      return 0
     check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
     
     debug_print(check_time)
