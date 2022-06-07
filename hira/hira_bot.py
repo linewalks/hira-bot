@@ -78,7 +78,7 @@ class HiraBot():
   def go_apply_page(self, driver, wait):
     wait.until(EC.element_to_be_clickable((By.ID, "applyBtn")))
     driver.find_element_by_id('applyBtn').click()
-    self.click_alert(driver, ignore=True)
+    self.click_alert(driver)
 
 
   def click_center(self, driver, wait, each_branch):
@@ -120,7 +120,7 @@ class HiraBot():
     self.go_apply_page(driver, wait)
 
     # 기존 이용 신청이 있는 경우에 "이용신청 클릭 시" 신청중으로 되돌아 갑니다. 얼럿이 추가로 발생
-    self.click_alert(driver)
+    self.click_alert(driver, ignore=True)
 
     # 지점 선택
     # TODO: 순서에 따라 지점을 선택해가도록 변경
