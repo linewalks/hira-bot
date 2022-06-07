@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint
 from flask_apispec import doc, marshal_with, use_kwargs
 
-from utils.helper import send_message, validate
+from utils.helper import get_run_on_time_target_day, send_message, validate
 from nhiss.tasks.reservation_mode import run_until_success, run_on_time
 from background.nhiss import stop_celery_task
 from main.common.common import region_dict, get_research_number_xpath, get_countdown
@@ -63,8 +63,7 @@ def make_reservation_nhiss_until_success(name, id, password, is_seoul, research_
     description="Nhiss on-time 모드로 예약햡니다."
 )
 def make_reservation_nhiss_on_time(name, id, password, is_seoul, research_number, region, research_visiter_list):
-  target_day = (datetime.now() + timedelta(days = 15)).strftime("%Y-%m-%d")
-
+  target_day = get_run_on_time_target_day().strftime("%Y-%m-%d")
   research_number_xpath = get_research_number_xpath(research_number)
 
   region = "서울" if is_seoul else region

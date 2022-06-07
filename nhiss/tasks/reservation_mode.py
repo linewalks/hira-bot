@@ -1,9 +1,10 @@
 import time
-from datetime import timedelta, datetime
-from utils.helper import count_down, send_message, check_elapsed_time
+from datetime import  timedelta
+from utils.helper import get_run_on_time_work_date, count_down, send_message, check_elapsed_time
 from utils.message import success_msg, failure_msg
 from nhiss.tasks.common import init_nhiss_bot, reservation_content_fill, click_reservation_button
 from nhiss.tasks.register_info import RegisterInfo
+from nhiss.tasks.error import ForceQuit
 from nhiss.configs.nhiss_cfg import (OS,
   RESEARCH_NUMBER_XPATH,
   RESEARCH_CENTER_XPATH,
@@ -34,23 +35,24 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
   print(task_message)
 
   start_time = time.time()
-  today = datetime.now()
-  next_day = today + timedelta(days = 1)
+  work_date = get_run_on_time_work_date()
 
   check_all_config_filled_up()
   bot = init_nhiss_bot(headless, options)
 
   try:
     if not debug:
+      pre_work_date = work_date - timedelta(minutes = 5)
+
       # TODO: Set date and time to login
-      bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 8, 55, 0)
+      bot.wait_until_kst(pre_work_date.year, pre_work_date.month, pre_work_date.day, pre_work_date.hour, pre_work_date.minute, pre_work_date.second)
 
     # 1. 예약 신청 내용 입력 (날짜 선택 x)
     result = reservation_content_fill(bot, register_info['target_day'], register_info['is_seoul'], check_date = False)
 
     if not debug:
       # TODO: NHISS Bot을 실행시킬 시간(예약 실행 시간)을 설정.
-      bot.wait_until_kst(next_day.year, next_day.month, next_day.day, 9, 0, 0)
+      bot.wait_until_kst(work_date.year, work_date.month, work_date.day, work_date.hour, work_date.minute, work_date.second)
 
     # 2. 갱신된 날짜 테이블 내에서 선택
     bot.selectReservationDate(register_info['target_day'], register_info['is_seoul'])
@@ -65,7 +67,7 @@ def run_on_time(self, info, headless: bool = False, debug: bool = True,  options
 
   except Exception as err:
     print(err)
-    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day']), err)
+    send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
   finally:
     check_elapsed_time(start_time)
     time.sleep(1)
@@ -86,6 +88,10 @@ def run_until_success(self, info, headless: bool = False, options={}):
     bot = init_nhiss_bot(headless, options)
 
     try: 
+      if (datetime.now() > datetime.strptime(register_info['target_day'], "%Y-%m-%d")):
+        send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], 'target_day가 오늘 날짜보다 앞에 있습니다.'))
+        break
+
       # 1. 예약 신청 내용 입력
       result = reservation_content_fill(bot, register_info['target_day'], register_info['is_seoul'], check_date = True)
 
@@ -98,9 +104,14 @@ def run_until_success(self, info, headless: bool = False, options={}):
           send_message(success_msg(register_info['user_name'], register_info['region'], register_info['target_day'], result['reservation_research_name']))
           break
 
+    except ForceQuit as err:
+      send_message(failure_msg(register_info['user_name'], register_info['region'], register_info['target_day'], err))
+      break
+
     except Exception as err:
       print(err)
       count_down(5)
+
     finally:
       check_elapsed_time(start_time)
       time.sleep(1)
