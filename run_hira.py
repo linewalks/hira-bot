@@ -14,10 +14,14 @@ def run_on_time():
     elapsed = time.time() - start
     current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     debug_print(f"[예약{'성공' if success else '실패'}] 현재시간: {current_time} 경과시간: {float(elapsed):.2f}초")
-    if success:
-      time.sleep(60 * 60)
   except TimeoutException as e:
     debug_print("TimeoutException 발생!")
+  except Exception as e:
+    debug_print(e)
+  except:
+    debug_print("기타 Error 발생")
+  finally:
+    time.sleep(3600)
 
 
 def run_until_success():

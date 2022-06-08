@@ -24,6 +24,9 @@ from hira.config import (
 format = "%a, %d %b %Y %H:%M:%S %Z"
 
 class HiraBot():
+  def __init__(self):
+    self.driver = None
+
   def init_driver(self):
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_experimental_option("excludeSwitches", ['enable-logging'])
@@ -32,42 +35,45 @@ class HiraBot():
         service=Service(ChromeDriverManager().install()),
         chrome_options=chrome_options
     )
-    return driver
+    self.driver = driver
 
 
   def get_time_delta(self):
+
     check_time = requests.get('https://opendata.hira.or.kr/home.do').headers['Date']
     
     debug_print(check_time)
     check_time_object = datetime.strptime(check_time, format) + timedelta(hours=9)
     debug_print(check_time_object)
     debug_print(f"봇 실행 예약 시간: {TARGET_DATE}")
+    if TARGET_DATE == "now":
+      return check_time_object - check_time_object
     delta = datetime.strptime(TARGET_DATE, "%Y-%m-%d %H:%M:%S") - check_time_object
     debug_print(delta)
     return delta
 
 
-  def go_login_page(self, driver):
-    driver.get('https://opendata.hira.or.kr/op/oph/selectCnfcUseAplPrsnt.do')
+  def go_login_page(self):
+    self.driver.get('https://opendata.hira.or.kr/op/oph/selectCnfcUseAplPrsnt.do')
 
 
-  def login(self, driver, wait):
+  def login(self, wait):
     a_result = wait.until(EC.presence_of_element_located((By.ID, "login")))
-    driver.find_element_by_id('loginId').send_keys(LOGIN_ID)
-    driver.find_element_by_id('loginPwd').send_keys(LOGIN_PASSWORD + Keys.RETURN)
+    self.driver.find_element_by_id('loginId').send_keys(LOGIN_ID)
+    self.driver.find_element_by_id('loginPwd').send_keys(LOGIN_PASSWORD + Keys.RETURN)
 
 
-  def close_popups(self, driver):
-    main = driver.window_handles
+  def close_popups(self):
+    main = self.driver.window_handles
     for handle in main[1:]:
-      driver.switch_to.window(handle)
-      driver.close()
-    driver.switch_to.window(driver.window_handles[0])
+      self.driver.switch_to.window(handle)
+      self.driver.close()
+    self.driver.switch_to.window(self.driver.window_handles[0])
 
-  def click_alert(self, driver, ignore=False):
+  def click_alert(self, ignore=False):
     try:
-      WebDriverWait(driver, 3).until(EC.alert_is_present())
-      driver.switch_to.alert.accept()
+      WebDriverWait(self.driver, 3).until(EC.alert_is_present())
+      self.driver.switch_to.alert.accept()
     except Exception as err:
       # alert이 신청 상황에 따라 발생 할수도 없을 수도 있기 때문에 raise 처리 X
       print("There is no alert")
@@ -75,21 +81,22 @@ class HiraBot():
         raise err
 
 
-  def go_apply_page(self, driver, wait):
+  def go_apply_page(self, wait):
     wait.until(EC.element_to_be_clickable((By.ID, "applyBtn")))
-    driver.find_element_by_id('applyBtn').click()
-    self.click_alert(driver, ignore=True)
+    self.driver.find_element_by_id('applyBtn').click()
+    self.click_alert()
 
 
-  def click_center(self, driver, wait, each_branch):
+  def click_center(self, wait, each_branch):
     wait.until(EC.element_to_be_clickable(
       (By.XPATH, f'//*[@id="cnfcPrSeatUseAplVO"]/fieldset/table[1]/thead/tr/th[{each_branch[0]}]/button')))
-    driver.find_element_by_xpath(
-      f'//*[@id="cnfcPrSeatUseAplVO"]/fieldset/table[1]/thead/tr/th[{each_branch[0]}]/button').click()
+    self.driver.find_element_by_xpath(
+        f'//*[@id="cnfcPrSeatUseAplVO"]/fieldset/table[1]/thead/tr/th[{each_branch[0]}]/button'
+    ).click()
 
 
-  def get_items(self, driver):
-    items = driver.find_elements_by_xpath("//table/tbody/tr/td/span/span[not(@class='bdc_ico_add')]")
+  def get_items(self):
+    items = self.driver.find_elements_by_xpath("//table/tbody/tr/td/span/span[not(@class='bdc_ico_add')]")
     return items
 
 
@@ -101,26 +108,26 @@ class HiraBot():
     return self.run()
 
   def run(self):
-    driver = self.init_driver()
+    self.init_driver()
 
     # 크롬 창 최대화
-    driver.maximize_window()
+    self.driver.maximize_window()
 
     # 로그인 페이지 접속
-    wait = WebDriverWait(driver, timeout=10)
-    self.go_login_page(driver)
+    wait = WebDriverWait(self.driver, timeout=10)
+    self.go_login_page()
 
     # 로그인
-    self.login(driver, wait)
+    self.login(wait)
 
     # 로그인 후 팝업 닫기
     time.sleep(1.5)
-    self.close_popups(driver)
+    self.close_popups()
     # 신청 페이지 이동
-    self.go_apply_page(driver, wait)
+    self.go_apply_page(wait)
 
     # 기존 이용 신청이 있는 경우에 "이용신청 클릭 시" 신청중으로 되돌아 갑니다. 얼럿이 추가로 발생
-    self.click_alert(driver)
+    self.click_alert(ignore=True)
 
     # 지점 선택
     # TODO: 순서에 따라 지점을 선택해가도록 변경
@@ -129,12 +136,12 @@ class HiraBot():
     for each_branch in branch_list:
       debug_print(f"{each_branch[2]} 검색중..")
       # 센터명 버튼 클릭
-      self.click_center(driver, wait, each_branch)
-      driver.implicitly_wait(2)
+      self.click_center(wait, each_branch)
+      self.driver.implicitly_wait(2)
       # 센터 이름이 나올때 까지 대기
-      self.click_alert(driver)
+      self.click_alert()
       wait.until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="bdc_title"]'), each_branch[2]))
-      items = self.get_items(driver)
+      items = self.get_items()
 
       if not items:
         continue
@@ -150,14 +157,14 @@ class HiraBot():
             f"btn_{each_branch[3]}{idx:02d}_{each_priority[1]}"
           ]
           if expected_btn_list[0] in item_list and expected_btn_list[1] in item_list:
-            btn_list = [driver.find_element_by_id(btn) for btn in expected_btn_list]
+            btn_list = [self.driver.find_element_by_id(btn) for btn in expected_btn_list]
           else:
             continue
           debug_print(f"가능한 곳 발견! {each_branch}: {expected_btn_list}")
-          driver.find_element_by_id(f"{each_branch[3]}{idx:02d}").click()
+          self.driver.find_element_by_id(f"{each_branch[3]}{idx:02d}").click()
           wait.until(EC.element_to_be_clickable((By.ID, f"{each_branch[3]}{idx:02d}")))
           for btn in btn_list: btn.click()
-          driver.find_element_by_id("btnNext").click()
+          self.driver.find_element_by_id("btnNext").click()
           success = True
           break
         if success:
@@ -165,13 +172,4 @@ class HiraBot():
       if success:
         break
 
-    # 새로고침
-    # driver.refresh()
-
-    # 3초 후
-    # time.sleep(3)
-
-    # 드라이버 종료(크롬창 닫힘)
-    if not success:
-      driver.quit()
     return success
