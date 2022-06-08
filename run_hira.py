@@ -19,7 +19,7 @@ def run_on_time():
   except Exception as e:
     debug_print(e)
   except:
-    debug_print("기타 Erorr 발생")
+    debug_print("기타 Error 발생")
   finally:
     time.sleep(3600)
 
