@@ -10,7 +10,7 @@ from nhiss.configs.nhiss_cfg import (
 )
 
 def get_seconds_pretty_string(seconds):
-  return str(datetime.timedelta(seconds=seconds))
+  return str(timedelta(seconds=seconds))
 
 # run_on_time 모드 내 예약 실행 시간
 def get_run_on_time_work_date():
@@ -54,7 +54,7 @@ def count_down(time_to_wait_seconds):
   print(f"[HiraBot]    Waiting for {get_seconds_pretty_string(time_to_wait_seconds)}")
   time.sleep(time_to_wait_seconds)
   elapsed = time.time() - start
-  current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   debug_print(f"현재시간: {current_time} 경과시간: {float(elapsed):.2f}초")
   print("\n")
 
