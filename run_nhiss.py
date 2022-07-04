@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from utils.helper import get_run_on_time_target_day, send_message, validate
 from background.nhiss import celery
 from nhiss.configs.nhiss_cfg import (
