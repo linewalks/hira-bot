@@ -75,13 +75,13 @@ def send_message(msg):
 
 def validate(date_text):
   try:
-      datetime.datetime.strptime(date_text, '%Y-%m-%d')
+      datetime.strptime(date_text, '%Y-%m-%d')
   except ValueError:
       raise ValueError(f"Incorrect data format, should be YYYY-MM-DD. Given date_test: {date_text}")
 
 # 시작 시간부터 경과 시간 체크
 def check_elapsed_time(start_time):
-  current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   end_time = time.time()
   elapsed = end_time - start_time
   print(f"[Bot][DEBUG] Current Time: {current_time} Time elapsed (in seconds): {float(elapsed):.2f}")
